@@ -11,7 +11,6 @@ using HookException = Celeste.Mod.HamburgerHelper.Utils.HookUtilities.HookExcept
 
 namespace Celeste.Mod.HamburgerHelper.Misc;
 
-
 // this is the first time i've ever written an il hook :3
 // shoutout to snip, zoey, catapillie, and jade for help with learning all of this
 
@@ -623,10 +622,6 @@ public static class ChapterPanelCustomization
         eff.Parameters["Photosensitive"]?.SetValue(Settings.Instance.DisableFlashes);
         
         // evil fucked up wall, basically just setting all of the parameter values
-        foreach (ELD.StringParameter param in data.StringParameters)
-        {
-            eff.Parameters[param.Name]?.SetValue(param.Value);
-        }
         foreach (ELD.BoolParameter param in data.BoolParameters)
         {
             eff.Parameters[param.Name]?.SetValue(param.Value);

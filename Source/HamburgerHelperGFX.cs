@@ -8,12 +8,6 @@ public static class HamburgerHelperGFX
     {
         // in fullscreen, the game renders directly to the backbuffer, so i need it to preservecontents
         // this makes my rendertarget changes not reset all rendering in OuiEffects
-        
-        // logging my crimes to make sure if it needs to be found, it can be
-        // Logger.Log(LogLevel.Verbose, "HamburgerHelper", "Modified backbuffer usage to PreserveContents");
-        // Logger.Log(LogLevel.Verbose, "HamburgerHelper", "If you're another mod developer, and this is a problem, contact me so I can avoid problems in the future");
-        // PresentationParameters pp = Engine.Graphics.GraphicsDevice.PresentationParameters;
-        // pp.RenderTargetUsage = RenderTargetUsage.PreserveContents;
     }
     
     internal static void UnloadContent()

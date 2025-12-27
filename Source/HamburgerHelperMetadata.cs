@@ -17,12 +17,6 @@ public class HamburgerHelperMetadata
     {
         // various parameter types, all loaded separate to avoid annoying parsing
         // (yaml deserializer takes care of this for me!)
-        public class StringParameter
-        {
-            public string Name;
-            public string Value;
-        }
-
         public class BoolParameter
         {
             public string Name;
@@ -70,7 +64,6 @@ public class HamburgerHelperMetadata
         
         public float TimeMultiplier { get; set; } = 1f;
         
-        public List<StringParameter> StringParameters = [];
         public List<BoolParameter> BoolParameters = [];
         public List<NumberParameter> NumberParameters = [];
         public List<Vector2Parameter> Vector2Parameters = [];
