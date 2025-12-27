@@ -1,0 +1,25 @@
+mods.HamburgerHelper.name=Hamburger Helper
+
+# ----- Entities -----
+
+
+
+# ----- Triggers -----
+
+triggers.HamburgerHelper/ChangeWindowTitleTrigger.placements.name.window_title_trigger=Change Window Title Trigger
+triggers.HamburgerHelper/ChangeWindowTitleTrigger.placements.description.window_title_trigger=Changes the game window title on player enter (plus flag options)
+
+triggers.HamburgerHelper/ChangeWindowTitleTrigger.attributes.description.windowTitle=Title for the game window to use (plaintext, not dialog)
+triggers.HamburgerHelper/ChangeWindowTitleTrigger.attributes.description.flagName=If useFlag is enabled, will check if this specified flag is enabled before activating
+triggers.HamburgerHelper/ChangeWindowTitleTrigger.attributes.description.useFlag=Whether or not to check for a flag being enabled before activating
+
+# ---
+
+triggers.HamburgerHelper/ChangeWindowIconTrigger.placements.name.window_icon_trigger=Change Window Icon Trigger
+triggers.HamburgerHelper/ChangeWindowIconTrigger.placements.description.window_title_trigger=Changes the game window icon on player enter (plus flag options)
+
+triggers.HamburgerHelper/ChangeWindowIconTrigger.attributes.description.iconPath=Path for the window icon to reference from (png file)\nFile path starts from Graphics/Atlases/Gameplay/hamburger/icons/\nTo reset, use "strawberrysdl"
+triggers.HamburgerHelper/ChangeWindowIconTrigger.attributes.description.flagName=If useFlag is enabled, will check if this specified flag is enabled before activating
+triggers.HamburgerHelper/ChangeWindowIconTrigger.attributes.description.useFlag=Whether or not to check for a flag being enabled before activating
+
+# ----- Effects ------

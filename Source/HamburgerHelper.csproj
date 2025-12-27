@@ -1,0 +1,132 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>HamburgerHelper</AssemblyName>
+        <RootNamespace>Celeste.Mod.HamburgerHelper</RootNamespace>
+        <LangVersion>latest</LangVersion>
+        <CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.dll')">..\..\..</CelestePrefix>
+        <CelestePrefix Condition="'$(CelestePrefix)' == ''">lib-stripped</CelestePrefix>
+        <ZippedFiles>..\everest.yaml;..\bin\**\*.*;..\Audio\**\*.*;..\Dialog\**\*.*;..\Graphics\**\*.*;..\Ahorn\**\*.*;..\Effects\HamburgerHelper\**\*.*;..\Loenn\**\*.*;</ZippedFiles>
+    </PropertyGroup>
+    
+    <!--Disable "Copy Local" for all references-->
+    <ItemDefinitionGroup>
+        <PackageReference PrivateAssets="all" ExcludeAssets="runtime" />
+        <Reference Private="false" />
+    </ItemDefinitionGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.1" PrivateAssets="all" ExcludeAssets="runtime" />
+        <PackageReference Include="MonoMod.Patcher" Version="25.0.0-prerelease.2" />
+        <PackageReference Include="CelesteAnalyzer" Version="*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CelesteMod.Publicizer" Version="*" CelesteAssembly="$(CelestePrefix)\Celeste.dll" />
+        <Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll" Private="false" />
+        <Reference Include="$(CelestePrefix)\FNA.dll" Private="false" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <!--
+        Add any dependency references here.
+        Mod assemblies must be stripped and kept in lib-stripped, so that the GitHub runner will be able build the mod.
+
+        If you have PowerShell installed (which is cross-platform), I made a script that should do everything for you:
+        - put the mod assembly (.dll) in lib-stripped
+        - open PowerShell in your IDE (or in the repository root, so SantasGifts25)
+        - run "./StripAssembly.ps1 DependencyAssembly.dll"
+
+        If you don't have it/don't want to install it, open StripAssembly.ps1 in a text editor for manual instructions.
+        -->
+        
+        <Reference Include="CollabUtils2.CollabUtils2" Private="false" />
+    </ItemGroup>
+    
+    <Target Name="CopyFiles" AfterTargets="Build" Inputs="$(OutputPath)\$(AssemblyName).dll;$(OutputPath)\$(AssemblyName).pdb" Outputs="..\bin\$(AssemblyName).dll;..\bin\$(AssemblyName).pdb">
+        <Copy SourceFiles="$(OutputPath)\$(AssemblyName).dll" DestinationFolder="..\bin" />
+        <Copy SourceFiles="$(OutputPath)\$(AssemblyName).pdb" DestinationFolder="..\bin" />
+    </Target>
+
+    <ItemGroup>
+        <EffectFiles Include="**\*.fx" />
+        <AdditionalFiles Include="**\*.fx" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <NoWarn>X4717</NoWarn>
+        <FxcCompilerPath>..\Effects\Compiler\fxc.exe</FxcCompilerPath>
+    </PropertyGroup>
+    
+    <Target Name="BuildEffects" BeforeTargets="Build" Condition="$([MSBuild]::IsOSPlatform('Windows'))" Inputs="@(EffectFiles->'%(RecursiveDir)%(FileName)%(Extension)')" Outputs="@(EffectFiles->'%(EffectOutput)%(FileName).cso')">
+        <Exec Command="@(EffectFiles->'echo ----- Compiling effect: %(RecursiveDir)%(FileName)%(Extension) ----- &amp;&amp; &quot;$(FxcCompilerPath)&quot; &quot;%(RecursiveDir)%(FileName)%(Extension)&quot; /T fx_2_0 /nologo /Fo &quot;../Effects/HamburgerHelper/%(FileName).cso&quot; &#xA;&#xD;')" IgnoreExitCode="true" />
+    </Target>
+    
+    <Target Name="PackageMod" AfterTargets="CopyFiles" Inputs="$(ZippedFiles)" Outputs="..\HamburgerHelper.zip" Condition="'$(Configuration)' == 'Release'">
+        <ItemGroup>
+            <FilesToPackage Include="$(ZippedFiles)" />
+        </ItemGroup>
+        <PackageMod Files="@(FilesToPackage)" OutputPath="..\HamburgerHelper.zip" />
+    </Target>
+    
+    <PropertyGroup>
+        <PathMap>$(MSBuildProjectDirectory)=HamburgerHelper/</PathMap>
+    </PropertyGroup>
+
+    <!-- Inline task used to create a .zip for the mod -->
+    <UsingTask TaskName="PackageMod"
+               TaskFactory="RoslynCodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+        <ParameterGroup>
+            <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <OutputPath ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.IO.Compression" />
+            <Code Type="Fragment" Language="cs">
+            <![CDATA[
+                var projectDir = Path.Combine(@"$(ProjectDir)", ".."); // Go one level up, since we're inside the 'Source' directory
+                projectDir = Uri.UnescapeDataString(projectDir);
+            
+                if (File.Exists(OutputPath))
+                    File.Delete(OutputPath);
+
+                using (ZipArchive zip = ZipFile.Open(OutputPath, ZipArchiveMode.Create))
+                {
+                    foreach (var file in Files)
+                    {
+                        string filePath = file.GetMetadata("FullPath");
+                        string entryName = GetRelativePath(projectDir, filePath);
+                        
+                        zip.CreateEntryFromFile(filePath, entryName);
+                    }
+                }
+    
+                string GetRelativePath(string fromPath, string toPath)
+                {
+                    if (string.IsNullOrEmpty(fromPath)) throw new ArgumentNullException(nameof(fromPath));
+                    if (string.IsNullOrEmpty(toPath))   throw new ArgumentNullException(nameof(toPath));
+                
+                    Uri fromUri = new Uri(fromPath);
+                    Uri toUri = new Uri(toPath);
+                
+                    if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+                
+                    Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+                    string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+                
+                    if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        relativePath = relativePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    }
+                
+                    return relativePath;
+                }
+            ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+</Project>
