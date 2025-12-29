@@ -517,13 +517,13 @@ public static class ChapterPanelCustomization
 
         GraphicsDevice gd = Engine.Graphics.GraphicsDevice;
         PresentationParameters pp = gd.PresentationParameters;
-
+        
         PreviousTarget = gd.GetRenderTargets();
         
         if (data.TextRenderToRenderTarget)
         {
             pp.RenderTargetUsage = RenderTargetUsage.PreserveContents;
-
+            
             if (TextMaskTarget == null) return;
             
             gd.SetRenderTarget(TextMaskTarget);
@@ -573,8 +573,10 @@ public static class ChapterPanelCustomization
             else
                 gd.SetRenderTargets(PreviousTarget);
             
+            Matrix transformMatrix = HiresRenderer.DrawToBuffer ? Matrix.Identity : Engine.ScreenMatrix;
+            
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.Default, RasterizerState.CullNone, effect, Matrix.Identity);
+                DepthStencilState.Default, RasterizerState.CullNone, effect, transformMatrix);
             if (TextMaskTarget != null)
                 sb.Draw((RenderTarget2D)TextMaskTarget, Vector2.Zero, Color.White);
             sb.End();
@@ -641,6 +643,10 @@ public static class ChapterPanelCustomization
         foreach (ELD.Vector4Parameter param in data.Vector4Parameters)
         {
             eff.Parameters[param.Name]?.SetValue(param.VectorValue);
+        }
+        foreach (ELD.SamplerParameter param in data.SamplerParameters)
+        {
+            Engine.Graphics.GraphicsDevice.Textures[param.Index] = param.Value;
         }
         
         return eff;
@@ -713,18 +719,48 @@ public static class ChapterPanelCustomization
     
     internal static void LoadContent()
     {
-        int width = 320 * Math.Max(Settings.Instance.WindowScale, 6);
-        int height = 180 * Math.Max(Settings.Instance.WindowScale, 6);
+        GetWindowScale(out float scaleX, out float scaleY);
+        
+        scaleX = Math.Max(scaleX, 1);
+        scaleY = Math.Max(scaleY, 1);
+        
+        float baseWidth = (320 * scaleX);
+        float baseHeight = (180 * scaleY);
+        
+        int width = (int)(baseWidth * Math.Max(Settings.Instance.WindowScale, 6));
+        int height = (int)(baseHeight * Math.Max(Settings.Instance.WindowScale, 6));
         
         TextMaskTarget = VirtualContent.CreateRenderTarget("shader-mask-target", width, height);
     }
     
     private static void ResizeTarget()
     {
-        TextMaskTarget.Height = 180 * Math.Max(Settings.Instance.WindowScale, 6);
-        TextMaskTarget.Width = 320 * Math.Max(Settings.Instance.WindowScale, 6);
+        GetWindowScale(out float scaleX, out float scaleY);
+        
+        scaleX = Math.Max(scaleX, 1);
+        scaleY = Math.Max(scaleY, 1);
+        
+        float baseWidth = (320 * scaleX);
+        float baseHeight = (180 * scaleY);
+        
+        int width = (int)(baseWidth * Math.Max(Settings.Instance.WindowScale, 6));
+        int height = (int)(baseHeight * Math.Max(Settings.Instance.WindowScale, 6));
+
+        TextMaskTarget.Width = width;
+        TextMaskTarget.Height = height;
         TextMaskTarget.Reload();
     }
-
+    
+    private static void GetWindowScale(out float scaleX, out float scaleY)
+    {
+        Viewport viewport = Engine.Graphics.GraphicsDevice.Viewport;
+    
+        int referenceX = 320 * Math.Max(Settings.Instance.WindowScale, 6);
+        int referenceY = 180 * Math.Max(Settings.Instance.WindowScale, 6);
+        
+        scaleX = (float)viewport.Width / referenceX;
+        scaleY = (float)viewport.Height / referenceY;
+    }
+    
     # endregion
 }

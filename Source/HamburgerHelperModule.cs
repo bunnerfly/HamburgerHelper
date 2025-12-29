@@ -33,6 +33,7 @@ public class HamburgerHelperModule : EverestModule
         WindowUtils.Load();
         
         HamburgerHelperMetadata.Load();
+        HamburgerHelperGFX.Load();
     }
 
     public override void Unload() 
@@ -41,6 +42,8 @@ public class HamburgerHelperModule : EverestModule
         WindowUtils.Unload();
         
         HamburgerHelperMetadata.Unload();
+        
+        HamburgerHelperGFX.Unload();
         HamburgerHelperGFX.UnloadContent();
     }
     

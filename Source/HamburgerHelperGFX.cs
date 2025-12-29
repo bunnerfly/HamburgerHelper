@@ -6,8 +6,6 @@ public static class HamburgerHelperGFX
     
     internal static void LoadContent()
     {
-        // in fullscreen, the game renders directly to the backbuffer, so i need it to preservecontents
-        // this makes my rendertarget changes not reset all rendering in OuiEffects
     }
     
     internal static void UnloadContent()
@@ -15,11 +13,27 @@ public static class HamburgerHelperGFX
         ClearEffects();
     }
 
+    internal static void Load()
+    {
+        On.Celeste.Level.Begin += LevelOnBegin;
+    }
+
+    internal static void Unload()
+    {
+        On.Celeste.Level.Begin -= LevelOnBegin;
+    }
+    
+    private static void LevelOnBegin(On.Celeste.Level.orig_Begin orig, Level self)
+    {
+        orig(self);
+        ClearEffects();
+    }
+
     public static void ClearEffects()
     {
         foreach (Effect eff in Effects.Values.ToList())
         {
-            eff.Dispose();
+            eff?.Dispose();
         }
         Effects.Clear();
     }
@@ -35,10 +49,10 @@ public static class HamburgerHelperGFX
         string path = $"Effects/HamburgerHelper/{id}.cso";
         if (fullpath != null) path = $"{fullpath}.cso";
 
+        if (Effects.TryGetValue(path, out Effect cachedEff)) return cachedEff;
+        
         if (!Everest.Content.TryGet(path, out ModAsset effect))
             Logger.Log(LogLevel.Error, "HamburgerHelperGFX", $"Failed loading effect from {path}");
-
-        if (Effects.TryGetValue(path, out Effect cachedEff)) return cachedEff;
         
         Effects[path] = new Effect(Engine.Graphics.GraphicsDevice, effect.Data);
         Logger.Log(LogLevel.Verbose, "HamburgerHelperGFX", $"Loaded effect from {path}");

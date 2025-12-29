@@ -52,6 +52,13 @@ public class HamburgerHelperMetadata
             
             public Vector4 VectorValue => new Vector4(Value[0], Value[1], Value[2], Value[3]);
         }
+
+        public class SamplerParameter
+        {
+            public int Index;
+            public string Texture;
+            public Texture2D Value => GFX.Game[Texture].Texture.Texture_Safe;
+        }
     
         // ReSharper disable once MemberCanBePrivate.Global
         public string EffectPath { get; set; } = "";
@@ -69,6 +76,7 @@ public class HamburgerHelperMetadata
         public List<Vector2Parameter> Vector2Parameters = [];
         public List<Vector3Parameter> Vector3Parameters = [];
         public List<Vector4Parameter> Vector4Parameters = [];
+        public List<SamplerParameter> SamplerParameters = [];
     }
     
     public class OverlayData
