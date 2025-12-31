@@ -1,5 +1,6 @@
 using Celeste.Mod.CollabUtils2;
 using Celeste.Mod.Helpers;
+using Microsoft.Xna.Framework.Input;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -21,12 +22,17 @@ namespace Celeste.Mod.HamburgerHelper.Misc;
 public static class ChapterPanelCustomization
 {
     private static ILHook ilHook_OuiChapterPanel_SwapRoutine;
+    private static ILHook ilHook_OuiChapterPanel_orig_DrawCheckpoint;
     
     internal static void Load()
     {
         IL.Celeste.OuiChapterPanel.Render += OuiChapterPanelOnRender;
         IL.Celeste.OuiChapterPanel.Option.Render += OptionOnRender;
         IL.Celeste.OuiChapterPanel.Reset += OuiChapterPanel_Reset;
+
+        ilHook_OuiChapterPanel_orig_DrawCheckpoint =
+            new ILHook(typeof(OuiChapterPanel).GetMethod("orig_DrawCheckpoint", BindingFlags.NonPublic | BindingFlags.Instance)!,
+            OuiChapterPanel_orig_DrawCheckpoint);
         
         ilHook_OuiChapterPanel_SwapRoutine =
             new ILHook(typeof(OuiChapterPanel).GetMethod("SwapRoutine", BindingFlags.NonPublic | BindingFlags.Instance)!.GetStateMachineTarget()!,
@@ -44,6 +50,9 @@ public static class ChapterPanelCustomization
         ilHook_OuiChapterPanel_SwapRoutine.Dispose();
         ilHook_OuiChapterPanel_SwapRoutine = null;
         
+        ilHook_OuiChapterPanel_orig_DrawCheckpoint.Dispose();
+        ilHook_OuiChapterPanel_orig_DrawCheckpoint = null;
+        
         On.Celeste.MenuOptions.SetWindow -= OnWindowSizeChange;
 
         if (TextMaskTarget != null)
@@ -58,6 +67,34 @@ public static class ChapterPanelCustomization
         VariableDefinition variable = new VariableDefinition(type);
         self.Variables.Add(variable);
         return variable;
+    }
+    
+    private static void OuiChapterPanel_orig_DrawCheckpoint(ILContext il)
+    {
+        ILCursor cursor = new ILCursor(il);
+        
+        /*
+         * IL_0013: ldsfld class Monocle.Atlas Celeste.MTN::Checkpoints
+         * IL_0018: ldstr "polaroid"
+         */
+        if (!cursor.TryGotoNext(MoveType.After,
+            i => i.MatchLdsfld(typeof(MTN), "Checkpoints"),
+            i => i.MatchLdstr("polaroid")))
+            throw new HookUtilities.HookException(il, "OuiChapterPanel.orig_DrawCheckpoint failed at find polaroid");
+        
+        cursor.EmitDelegate(ModifyPolaroidPath);
+    }
+    
+    private static string ModifyPolaroidPath(string orig)
+    {
+        if (SaveData.Instance == null) return orig;
+        AreaData data = AreaData.Get(SaveData.Instance.LastArea_Safe);
+        
+        if (!HamburgerHelperMetadata.TryGetMetadata(data, out HamburgerHelperMetadata metadata)) 
+            return orig;
+        
+        HamburgerHelperMetadata.ChapterPanelCustomizationSettingsData meta = metadata?.ChapterPanelCustomization;
+        return meta == null ? orig : meta.CustomPolaroidPath;
     }
     
     private static void OptionOnRender(ILContext il)
@@ -84,7 +121,6 @@ public static class ChapterPanelCustomization
         
         cursor.Index++;
         
-        cursor.EmitLdstr("ChapterTab");
         cursor.EmitDelegate(EndShaderLayerRender);
     }
     
@@ -127,7 +163,6 @@ public static class ChapterPanelCustomization
             i => i.MatchCallvirt<MTexture>("Draw")))
             throw new HookException(il, "Unable to find card texture rendering ");
         
-        cursor.EmitLdstr("ChapterCard");
         cursor.EmitDelegate(EndShaderLayerRender);
         
         // ----- Overlays Rendering -----
@@ -174,7 +209,6 @@ public static class ChapterPanelCustomization
         
         cursor.Index++;
         
-        cursor.EmitLdstr("Base");
         cursor.EmitDelegate(EndShaderLayerRender);
         
         // ----- Title Accent Shader Rendering -----
@@ -199,7 +233,6 @@ public static class ChapterPanelCustomization
 
         cursor.Index++;
         
-        cursor.EmitLdstr("Accent");
         cursor.EmitDelegate(EndShaderLayerRender);
         
         // ----- Title Text & Chapter # Text Shader Rendering -----
@@ -255,9 +288,9 @@ public static class ChapterPanelCustomization
         }
     }
     
-        private static void OuiChapterPanel_Reset(ILContext il)
+    private static void OuiChapterPanel_Reset(ILContext il)
     {
-        ILCursor cursor = new(il);
+        ILCursor cursor = new ILCursor(il);
         
         /*
          * IL_01cc: dup
@@ -279,7 +312,7 @@ public static class ChapterPanelCustomization
     
     private static void OuiChapterPanel_SwapRoutine(ILContext il)
     {
-        ILCursor cursor = new(il);
+        ILCursor cursor = new ILCursor(il);
         
         /*
          * IL_018f: dup
@@ -342,7 +375,7 @@ public static class ChapterPanelCustomization
             bool renderShaderThisLayer = false;
             
             // should be optimized with StartShaderLayerRender but i need to finish this
-            if (TryLoadEffect(panel, "Overlay", out ELD data, out Effect effect, index: i))
+            if (TryLoadEffect("Overlay", out ELD data, out Effect effect, index: i))
             {
                 renderShaderThisLayer = true;
                 
@@ -382,8 +415,7 @@ public static class ChapterPanelCustomization
             // should be optimized with EndShaderLayerRender but i need to finish this
             if (renderShaderThisLayer)
             {
-                HiresRenderer.EndRender();
-                HiresRenderer.BeginRender();
+                EndShaderLayerRender();
             }
             
             i++;
@@ -444,10 +476,7 @@ public static class ChapterPanelCustomization
     /// <param name="layerType"></param>
     private static void StartShaderLayerRender(string layerType)
     {
-        OuiChapterPanel self = GetChapterPanel();
-        if (self == null) return;
-        
-        if (!TryLoadEffect(self, layerType, out ELD data, out Effect effect))
+        if (!TryLoadEffect(layerType, out ELD data, out Effect effect))
             return;
         
         HiresRenderer.EndRender();
@@ -462,15 +491,8 @@ public static class ChapterPanelCustomization
     /// <summary>
     /// Ends rendering for a given layerType
     /// </summary>
-    /// <param name="layerType"></param>
-    private static void EndShaderLayerRender(string layerType)
+    private static void EndShaderLayerRender()
     {
-        OuiChapterPanel self = GetChapterPanel();
-        if (self == null) return;
-        
-        if (!TryLoadEffect(self, layerType, out ELD data, out Effect effect))
-            return;
-        
         HiresRenderer.EndRender();
         HiresRenderer.BeginRender();
     }
@@ -486,18 +508,21 @@ public static class ChapterPanelCustomization
     private static void StartTextShaderLayerRender(string text, Vector2 position, 
         Vector2 justify, Vector2 scale, Color color)
     {
-        OuiChapterPanel self = GetChapterPanel();
-        if (self == null) return;
+        AreaData areaData = GetAreaData();
+        if (areaData == null) return;
+        
+        OuiChapterPanel panel = GetChapterPanel();
+        if (panel == null) return;
         
         string layerType = "DefaultText";
-        if (color == self.Data.TitleAccentColor * 0.8f)
+        if (color == areaData.TitleAccentColor * 0.8f)
             layerType = "ChapterText";
-        if (color == self.Data.TitleTextColor * 0.8f)
+        if (color == areaData.TitleTextColor * 0.8f)
             layerType = "Text";
-        if (position == self.OptionsRenderPosition + new Vector2(0f, -140f))
+        if (position == panel.OptionsRenderPosition + new Vector2(0f, -140f))
             layerType = "PlayText";
         
-        if (!TryLoadEffect(self, layerType, out ELD data, out Effect effect))
+        if (!TryLoadEffect(layerType, out ELD data, out Effect effect))
             return;
         
         if (data.TextRenderOutline)
@@ -545,18 +570,21 @@ public static class ChapterPanelCustomization
     private static void EndTextShaderLayerRender(string text, Vector2 position, 
         Vector2 justify, Vector2 scale, Color color)
     {
-        OuiChapterPanel self = GetChapterPanel();
-        if (self == null) return;
+        AreaData areaData = GetAreaData();
+        if (areaData == null) return;
+
+        OuiChapterPanel panel = GetChapterPanel();
+        if (panel == null) return;
         
         string layerType = "DefaultText";
-        if (color == self.Data.TitleAccentColor * 0.8f)
+        if (color == areaData.TitleAccentColor * 0.8f)
             layerType = "ChapterText";
-        if (color == self.Data.TitleTextColor * 0.8f)
+        if (color == areaData.TitleTextColor * 0.8f)
             layerType = "Text";
-        if (position == self.OptionsRenderPosition + new Vector2(0f, -140f))
+        if (position == panel.OptionsRenderPosition + new Vector2(0f, -140f))
             layerType = "PlayText";
         
-        if (!TryLoadEffect(self, layerType, out ELD data, out Effect effect))
+        if (!TryLoadEffect(layerType, out ELD data, out Effect effect))
             return;
         
         HiresRenderer.EndRender();
@@ -655,18 +683,20 @@ public static class ChapterPanelCustomization
     /// <summary>
     /// Checks for metadata & an effect on the given metadata layer, outputs many common variables
     /// </summary>
-    /// <param name="self">Chapter panel the hook runs on</param>
     /// <param name="layerType"></param>
     /// <param name="data">Data for the given layerType</param>
     /// <param name="effect">Shader effect for the given layerType</param>
     /// <param name="index">Index for the Overlay layer</param>
     /// <returns></returns>
-    private static bool TryLoadEffect(OuiChapterPanel self, string layerType, out ELD data, out Effect effect, int index = 0)
+    private static bool TryLoadEffect(string layerType, out ELD data, out Effect effect, int index = 0)
     {
         data = null;
         effect = null;
+
+        AreaData areaData = GetAreaData();
+        if (areaData == null) return false;
         
-        if (!HamburgerHelperMetadata.TryGetMetadata(self.Data, out HamburgerHelperMetadata metadata))
+        if (!HamburgerHelperMetadata.TryGetMetadata(areaData, out HamburgerHelperMetadata metadata))
             return false;
         
         HamburgerHelperMetadata.ChapterPanelCustomizationSettingsData oed = metadata?.ChapterPanelCustomization;
@@ -686,6 +716,13 @@ public static class ChapterPanelCustomization
         
         effect = data?.Effect;
         return effect != null;
+    }
+
+    private static AreaData GetAreaData()
+    {
+        if (SaveData.Instance == null) return null;
+        AreaData areaData = AreaData.Get(SaveData.Instance.LastArea_Safe);
+        return areaData;
     }
     
     /// <summary>

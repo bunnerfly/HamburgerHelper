@@ -57,7 +57,7 @@ public class HamburgerHelperMetadata
         {
             public int Index;
             public string Texture;
-            public Texture2D Value => GFX.Game[Texture].Texture.Texture_Safe;
+            public Texture2D Value => GFX.Gui[Texture].Texture.Texture_Safe;
         }
     
         // ReSharper disable once MemberCanBePrivate.Global
@@ -122,11 +122,29 @@ public class HamburgerHelperMetadata
         public string CheckpointOptionBgColor { get; set; }
         public float CheckpointOptionBgAlpha { get; set; } = 1f;
     }
+
+    public class OverworldCustomizationSettingsData
+    {
+        public class CustomHiresSnow
+        {
+            public string TexturePath { get; set; } = "snow";
+            public string[] OverworldTexturePaths { get; set; } = ["snow"];
+            public float OverworldSnowSize { get; set; } = 1f;
+        }
+
+        public string CustomOverlayTexture { get; set; } = "overlay";
+        public string CustomVignetteTexture { get; set; } = "vignette";
+        
+        public CustomHiresSnow CustomSnow { get; set; }
+    }
+
+    public OverworldCustomizationSettingsData OverworldCustomization { get; set; }
     
     public class ChapterPanelCustomizationSettingsData
     {
         public CustomColorData CustomColors { get; set; }
         public List<OverlayData> Overlays { get; set; }
+        public string CustomPolaroidPath { get; set; } = "polaroid";
         
         public EffectDataLayer TitleTextEffect { get; set; }
         public EffectDataLayer TitleBaseEffect { get; set; }
@@ -143,6 +161,12 @@ public class HamburgerHelperMetadata
     
     public static bool TryGetMetadata(AreaData area, out HamburgerHelperMetadata metadata)
     {
+        if (area == null)
+        {
+            metadata = null;
+            return false;
+        }
+        
         if (CachedMetadata.TryGetValue(area.SID, out metadata)) return true;
         
         string metaFile = $"Maps/{area.SID}.meta";

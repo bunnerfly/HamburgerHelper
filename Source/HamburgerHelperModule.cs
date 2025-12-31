@@ -30,6 +30,8 @@ public class HamburgerHelperModule : EverestModule
     public override void Load() 
     {
         ChapterPanelCustomization.Load();
+        OverworldCustomization.Load();
+        
         WindowUtils.Load();
         
         HamburgerHelperMetadata.Load();
@@ -39,11 +41,13 @@ public class HamburgerHelperModule : EverestModule
     public override void Unload() 
     {
         ChapterPanelCustomization.Unload();
+        OverworldCustomization.Unload();
+        
         WindowUtils.Unload();
         
         HamburgerHelperMetadata.Unload();
-        
         HamburgerHelperGFX.Unload();
+        
         HamburgerHelperGFX.UnloadContent();
     }
     
