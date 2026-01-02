@@ -2,9 +2,16 @@ mods.HamburgerHelper.name=Hamburger Helper
 
 # ----- Entities -----
 
+# -- Move Block Wait Controller 
 
+entities.HamburgerHelper/MoveBlockWaitController.placements.name.move_block_wait_controller=Move Block Wait Controller
+entities.HamburgerHelper/MoveBlockWaitController.placements.description.move_block_wait_controller=Adjusts the wait time of all Move Blocks from stepping on it to it moving
+
+entities.HamburgerHelper/MoveBlockWaitController.attributes.description.delay=Delay to wait before move block moves
 
 # ----- Triggers -----
+
+# --- Change Window Title Trigger
 
 triggers.HamburgerHelper/ChangeWindowTitleTrigger.placements.name.window_title_trigger=Change Window Title Trigger
 triggers.HamburgerHelper/ChangeWindowTitleTrigger.placements.description.window_title_trigger=Changes the game window title on player enter (plus flag options)
@@ -13,7 +20,7 @@ triggers.HamburgerHelper/ChangeWindowTitleTrigger.attributes.description.windowT
 triggers.HamburgerHelper/ChangeWindowTitleTrigger.attributes.description.flagName=If useFlag is enabled, will check if this specified flag is enabled before activating
 triggers.HamburgerHelper/ChangeWindowTitleTrigger.attributes.description.useFlag=Whether or not to check for a flag being enabled before activating
 
-# ---
+# --- Change Window Icon Trigger
 
 triggers.HamburgerHelper/ChangeWindowIconTrigger.placements.name.window_icon_trigger=Change Window Icon Trigger
 triggers.HamburgerHelper/ChangeWindowIconTrigger.placements.description.window_title_trigger=Changes the game window icon on player enter (plus flag options)

@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.HamburgerHelper.Misc;
+﻿using Celeste.Mod.HamburgerHelper.Entities;
+using Celeste.Mod.HamburgerHelper.Misc;
 
 namespace Celeste.Mod.HamburgerHelper;
 
@@ -29,6 +30,8 @@ public class HamburgerHelperModule : EverestModule
 
     public override void Load() 
     {
+        MoveBlockWaitController.Load();
+        
         ChapterPanelCustomization.Load();
         OverworldCustomization.Load();
         
@@ -40,6 +43,8 @@ public class HamburgerHelperModule : EverestModule
 
     public override void Unload() 
     {
+        MoveBlockWaitController.Unload();
+        
         ChapterPanelCustomization.Unload();
         OverworldCustomization.Unload();
         
