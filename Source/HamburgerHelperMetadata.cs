@@ -65,7 +65,7 @@ public class HamburgerHelperMetadata
         public Effect Effect => HamburgerHelperGFX.LoadEffect("", EffectPath);
         
         public string TextOutlineColor { get; set; } = "FFFFFF";
-        public bool TextRenderToRenderTarget { get; set; } = true;
+        public bool TextRenderToRenderTarget { get; set; } = false;
         public bool TextRenderOutline { get; set; } = false;
         public bool TextOffsetOutline { get; set; } = true;
         
@@ -131,7 +131,7 @@ public class HamburgerHelperMetadata
             public string[] OverworldTexturePaths { get; set; } = ["snow"];
             public float OverworldSnowSize { get; set; } = 1f;
         }
-
+        
         public string CustomOverlayTexture { get; set; } = "overlay";
         public string CustomVignetteTexture { get; set; } = "vignette";
         

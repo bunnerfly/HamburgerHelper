@@ -80,7 +80,7 @@ public static class ChapterPanelCustomization
         if (!cursor.TryGotoNext(MoveType.After,
             i => i.MatchLdsfld(typeof(MTN), "Checkpoints"),
             i => i.MatchLdstr("polaroid")))
-            throw new HookUtilities.HookException(il, "OuiChapterPanel.orig_DrawCheckpoint failed at find polaroid");
+            throw new HookException(il, "OuiChapterPanel.orig_DrawCheckpoint failed at find polaroid");
         
         cursor.EmitDelegate(ModifyPolaroidPath);
     }
