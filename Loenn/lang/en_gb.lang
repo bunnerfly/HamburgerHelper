@@ -9,6 +9,14 @@ entities.HamburgerHelper/MoveBlockWaitController.placements.description.move_blo
 
 entities.HamburgerHelper/MoveBlockWaitController.attributes.description.delay=Delay to wait before move block moves
 
+# -- Dreamer Refill
+
+entities.HamburgerHelper/DreamerRefill.placements.name.dreamer_refill=Dreamer Refill
+entities.HamburgerHelper/DreamerRefill.placements.description.dreamer_refill=Sets the player to StDreamDash on dash end if collected
+
+entities.HamburgerHelper/DreamerRefill.attributes.description.respawnTime=Time between respawns for the refill
+entities.HamburgerHelper/DreamerRefill.attributes.description.oneUse=Whether or not the refill should be one use
+
 # ----- Triggers -----
 
 # --- Change Window Title Trigger

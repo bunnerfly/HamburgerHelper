@@ -31,6 +31,7 @@ public class HamburgerHelperModule : EverestModule
     public override void Load() 
     {
         MoveBlockWaitController.Load();
+        DreamerRefill.Load();
         
         ChapterPanelCustomization.Load();
         OverworldCustomization.Load();
@@ -44,6 +45,7 @@ public class HamburgerHelperModule : EverestModule
     public override void Unload() 
     {
         MoveBlockWaitController.Unload();
+        DreamerRefill.Unload();
         
         ChapterPanelCustomization.Unload();
         OverworldCustomization.Unload();
