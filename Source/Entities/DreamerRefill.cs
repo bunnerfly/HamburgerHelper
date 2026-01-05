@@ -129,7 +129,7 @@ public class DreamerRefill : Entity
         HasDreamerDash = true;
         Collidable = false;
         
-        Audio.Play("event:/new_content/game/10_farewell/pinkdiamond_touch", Position);
+        Audio.Play("event:/HamburgerHelper/sfx/dreamer_diamond_touch", Position);
         Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
         
         Add(new Coroutine(CollectRoutine(player)));
@@ -140,7 +140,7 @@ public class DreamerRefill : Entity
     {
         if (Collidable) return;
         
-        Audio.Play("event:/new_content/game/10_farewell/pinkdiamond_return", Position);
+        Audio.Play("event:/HamburgerHelper/sfx/dreamer_diamond_return", Position);
         Level.ParticlesFG.Emit(P_Regen, 16, Position, Vector2.One * 2f);
         
         Collidable = true;
