@@ -1,3 +1,5 @@
+local utils = require("utils")
+
 local entity = {}
 
 entity.name = "HamburgerHelper/DreamerRefill"
@@ -14,5 +16,9 @@ entity.placements = {
 }
 
 entity.texture = "objects/hamburger/dreamerrefill/idle00"
+
+function entity.rectangle(room, entity)
+    return utils.rectangle(entity.x - 5, entity.y - 5, 10, 10)
+end
 
 return entity
