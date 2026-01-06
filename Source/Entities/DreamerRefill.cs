@@ -44,9 +44,18 @@ public class DreamerRefill : Entity
     private readonly bool OneUse;
     
     private float RespawnTimer;
+
+    private static bool HasDreamerDash
+    {
+        get => HamburgerHelperModule.Session.HasDreamerDash; 
+        set => HamburgerHelperModule.Session.HasDreamerDash = value;
+    }
     
-    private static bool HasDreamerDash;
-    private static bool UsedDreamerDash;
+    private static bool UsedDreamerDash
+    {
+        get => HamburgerHelperModule.Session.UsedDreamerDash; 
+        set => HamburgerHelperModule.Session.UsedDreamerDash = value;
+    }
     
     public DreamerRefill(EntityData data, Vector2 offset) 
         : base(data.Position + offset)
