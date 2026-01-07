@@ -261,6 +261,13 @@ public class DreamerRefill : Entity
         // ReSharper disable once InvertIf
         if (UsedDreamerDash)
         {
+            // this avoids a crash when you use both a dream refill & dreamer refill
+            // without having used a dream block before
+            if (self.dreamSfxLoop == null)
+            {
+                self.Add(self.dreamSfxLoop = new SoundSource());
+            }
+            
             self.StateMachine.State = Player.StDreamDash;
         }
     }
@@ -277,7 +284,8 @@ public class DreamerRefill : Entity
         }
     }
     
-    private static PlayerDeadBody PlayerOnDie(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats)
+    private static PlayerDeadBody PlayerOnDie(On.Celeste.Player.orig_Die orig, Player self, 
+        Vector2 direction, bool evenIfInvincible, bool registerDeathInStats)
     {
         HasDreamerDash = false;
         UsedDreamerDash = false;
@@ -285,7 +293,8 @@ public class DreamerRefill : Entity
         return orig(self, direction, evenIfInvincible, registerDeathInStats);
     }
     
-    private static Color PlayerHairOnGetHairColor(On.Celeste.PlayerHair.orig_GetHairColor orig, PlayerHair self, int index)
+    private static Color PlayerHairOnGetHairColor(On.Celeste.PlayerHair.orig_GetHairColor orig, 
+        PlayerHair self, int index)
     {
         return HasDreamerDash ? Color.MediumPurple : orig(self, index);
     }

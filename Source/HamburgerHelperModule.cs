@@ -15,6 +15,8 @@ public class HamburgerHelperModule : EverestModule
 
     public override Type SaveDataType => typeof(HamburgerHelperModuleSaveData);
     public static HamburgerHelperModuleSaveData SaveData => (HamburgerHelperModuleSaveData) Instance._SaveData;
+
+    public static HashSet<string> LoadedOptionalDependencies = new HashSet<string>();
     
     public HamburgerHelperModule() 
     {
@@ -28,8 +30,10 @@ public class HamburgerHelperModule : EverestModule
 #endif
     }
 
-    public override void Load() 
+    public override void Load()
     {
+        LoadOptioanlDependencies();
+        
         MoveBlockWaitController.Load();
         DreamerRefill.Load();
         
@@ -63,5 +67,27 @@ public class HamburgerHelperModule : EverestModule
         ChapterPanelCustomization.LoadContent();
         
         HamburgerHelperGFX.LoadContent();
+    }
+    
+    private static void LoadOptioanlDependencies()
+    {
+        List<EverestModuleMetadata> optionalDependencies = new List<EverestModuleMetadata>();
+        LoadedOptionalDependencies.Clear();
+        
+        EverestModuleMetadata collabUtils2 = new EverestModuleMetadata()
+        {
+            Name = "CollabUtils2",
+            Version = new Version(1, 12, 2),
+        };
+        optionalDependencies.Add(collabUtils2);
+        
+        foreach (EverestModuleMetadata mod in optionalDependencies)
+        {
+            if (Everest.Loader.DependencyLoaded(mod))
+            {
+                Logger.Log(LogLevel.Info, "HamburgerHelper", $"Loaded optional dependency {mod.Name}");
+                LoadedOptionalDependencies.Add(mod.Name);   
+            }
+        }
     }
 }

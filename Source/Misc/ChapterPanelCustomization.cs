@@ -735,6 +735,8 @@ public static class ChapterPanelCustomization
         OuiChapterPanel panel = Engine.Scene.Entities.FindFirst<OuiChapterPanel>();
         if (panel != null)
             return panel;
+
+        if (!HamburgerHelperModule.LoadedOptionalDependencies.Contains("CollabUtils2")) return null;
         
         // CollabtUtils2 has the OuiChapterPanel in a wrapped scene, so get it from there
         SceneWrappingEntity<Overworld> chapterPanelContainer = Engine.Scene.Entities.FindFirst<SceneWrappingEntity<Overworld>>();
