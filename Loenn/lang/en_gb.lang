@@ -40,6 +40,11 @@ entities.HamburgerHelper/TilesetSoundSplitter.attributes.description.wallSoundIn
 entities.HamburgerHelper/TilesetSoundSplitter.attributes.description.stepSoundIndex=The sound index to be used when the player steps on the set tiletype
 entities.HamburgerHelper/TilesetSoundSplitter.attributes.description.landSoundIndex=The sound index to be used when the player lands on the set tiletype
 
+# -- St Launch Controller
+
+entities.HamburgerHelper/StLaunchController.placements.name.st_launch_controller=StLaunch Controller
+entities.HamburgerHelper/StLaunchController.placements.description.st_launch_controller=Forces the player to exit StLaunch state when grounded
+
 # -- Dreamer Refill
 
 entities.HamburgerHelper/DreamerRefill.placements.name.dreamer_refill=Dreamer Refill
@@ -47,6 +52,43 @@ entities.HamburgerHelper/DreamerRefill.placements.description.dreamer_refill=Set
 
 entities.HamburgerHelper/DreamerRefill.attributes.description.respawnTime=Time between respawns for the refill
 entities.HamburgerHelper/DreamerRefill.attributes.description.oneUse=Whether or not the refill should be one use
+
+# -- Dark Angel Refill
+
+entities.HamburgerHelper/DarkAngelRefill.placements.name.dark_angel_refill=Dark Angel Refill
+entities.HamburgerHelper/DarkAngelRefill.placements.description.dark_angel_refill=Gives the player a Dark Angel double jump when collected\nInspired by unrelated movement in Sonafleki
+
+entities.HamburgerHelper/DarkAngelRefill.attributes.description.respawnTime=Time between respawns for the refill
+entities.HamburgerHelper/DarkAngelRefill.attributes.description.oneUse=Whether or not the refill should be one use
+
+# -- Firework
+
+entities.HamburgerHelper/Firework.placements.name.firework=Firework
+entities.HamburgerHelper/Firework.placements.description.firework=A firework that can be triggered by a fuse
+
+entities.HamburgerHelper/Firework.attributes.description.launchTime=How long the time the firework launches for, in seconds
+entities.HamburgerHelper/Firework.attributes.description.launchSpeed=The speed that the firework moves at, in pixels per frame
+entities.HamburgerHelper/Firework.attributes.description.launchSpeed=The speed that the firework moves at, in pixels per frame
+entities.HamburgerHelper/Firework.attributes.description.fireworkSprite=The path to the sprite for the firework, relative to objects/hamburger/firework/
+entities.HamburgerHelper/Firework.attributes.description.sidesOnly=Whether or not to only launch to the sides
+entities.HamburgerHelper/Firework.attributes.description.snapUp=Whether or not to to snap the player up when a near vertical angle
+
+# -- Fuse
+
+entities.HamburgerHelper/Fuse.placements.name.fuse=Fuse
+entities.HamburgerHelper/Fuse.placements.description.fuse=A fuse that triggers fireworks, requires a lighter refill to be collected to use
+
+entities.HamburgerHelper/Fuse.attributes.description.fuseSpeed=The speed at which the fuse shrinks, in pixels per frame
+entities.HamburgerHelper/Fuse.attributes.description.playerIgnite=Whether or not the player can ignite the fuse\nIf unchecked, this fuse can be lit by other fuses.
+entities.HamburgerHelper/Fuse.attributes.description.fuseColor=The color of the fuse
+
+# -- Lighter Refill
+
+entities.HamburgerHelper/LighterRefill.placements.name.lighter=Lighter Refill
+entities.HamburgerHelper/LighterRefill.placements.description.lighter=Allows the player to light a fuse from a firework when grab is pressed near the tail
+
+entities.HamburgerHelper/LighterRefill.attributes.description.respawnTime=Time between respawns for the refill
+entities.HamburgerHelper/LighterRefill.attributes.description.oneUse=Whether or not the refill should be one use
 
 # -- Cursor Pickup
 
@@ -70,6 +112,25 @@ entities.HamburgerHelper/StickyWalls.placements.description.sticky_right=A wall 
 
 entities.HamburgerHelper/StickyWalls.attributes.description.left=If checked, the wall will force the player to grab left. If unchecked, the wall will force the player to grab right
 entities.HamburgerHelper/StickyWalls.attributes.description.color=The color to use for the wall
+
+# -- Multi Texture Decal
+
+entities.HamburgerHelper/MultiTextureDecal.placements.name.fg_multi_texture_decal=Multi-Texture Decal (Foreground)
+entities.HamburgerHelper/MultiTextureDecal.placements.name.bg_multi_texture_decal=Multi-Texture Decal (Background)
+
+entities.HamburgerHelper/MultiTextureDecal.placements.description.fg_multi_texture_decal=A custom foreground decal that chooses from multiple options on creation\nUseful for if you have same size sprite variations or need random decal registry attributes
+entities.HamburgerHelper/MultiTextureDecal.placements.description.bg_multi_texture_decal=A custom background decal that chooses from multiple options on creation\nUseful for if you have same size sprite variations or need random decal registry attributes
+
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.textures=Path to the decal texture, relative to decals/
+
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.scaleX=Horizontal scale of the decal
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.scaleY=Veritcal scale of the decal
+
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.rotation=Rotation (in degrees) of the decal
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.color=Color of the decal
+
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.foreground=If checked, the decal will have the foreground decal base depth (-10500)\nIf unchecked, the decal will have the background decal base depth (9000)
+entities.HamburgerHelper/MultiTextureDecal.attributes.description.depthOffset=The offset from the base depth the decal should have\nExample: foreground base depth (-10500) + offset (500) would give the decal a depth of -10000
 
 # ----- Triggers -----
 
