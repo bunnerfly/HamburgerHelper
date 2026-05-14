@@ -189,10 +189,11 @@ public static class ChapterPanelCustomization
         
         cursor.EmitDelegate(EndShaderLayerRender);
         
-        // ----- Overlays Rendering -----
+        // ----- Default Overlay Rendering -----
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.Default);
         cursor.EmitDelegate(DrawOverlays);
         
         // ----- Option Text Recoloring -----
@@ -211,6 +212,13 @@ public static class ChapterPanelCustomization
         cursor.EmitLdarg0();
         cursor.EmitDelegate(ModifyOptionLabelColor);
 
+        // ----- Below Title Overlay Rendering -----
+        
+        cursor.EmitLdarg0();
+        cursor.EmitLdloc2();
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.BelowTitle);
+        cursor.EmitDelegate(DrawOverlays);
+        
         // ----- Title Base Shader Rendering -----
 
         /*
@@ -310,6 +318,13 @@ public static class ChapterPanelCustomization
             cursor.EmitLdloc(color);
             cursor.EmitDelegate(EndTextShaderLayerRender);
         }
+        
+        // ----- Below Title Overlay Rendering -----
+        
+        cursor.EmitLdarg0();
+        cursor.EmitLdloc2();
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveTitle);
+        cursor.EmitDelegate(DrawOverlays);
     }
     
     private static void OuiChapterPanel_Reset(ILContext il)
@@ -530,7 +545,7 @@ public static class ChapterPanelCustomization
     # region Overlays & Recolors
     
     // Overlay rendering was made by aonkeeper4, added + edited with permission of course
-    private static void DrawOverlays(OuiChapterPanel panel, MTexture cardTop)
+    private static void DrawOverlays(OuiChapterPanel panel, MTexture cardTop, HamburgerHelperMetadata.OverlayData.Layers layer)
     {
         if (!HamburgerHelperMetadata.TryGetMetadata(panel.Data, out HamburgerHelperMetadata metadata)
             || metadata.ChapterPanelCustomization is not { Overlays: { Count: > 0 } overlays })
@@ -549,7 +564,8 @@ public static class ChapterPanelCustomization
                     HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => RainbowCollected(panel.Area, stats),
                     _ => throw new ArgumentOutOfRangeException()
                 })
-                       .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)))
+                       .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
+                       && overlayData.Layer == layer))
         {
             MTexture texture = GFX.Gui[overlayData.Texture];
             Color color = Calc.HexToColor(overlayData.Color);

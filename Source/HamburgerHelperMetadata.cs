@@ -99,9 +99,17 @@ public class HamburgerHelperMetadata
             Card,
             Stats
         }
+
+        public enum Layers
+        {
+            Default = 0,
+            BelowTitle = 1,
+            AboveTitle = 2
+        }
         
         public Conditions Condition { get; set; } = Conditions.None;
         public Anchors Anchor { get; set; } = Anchors.Card;
+        public Layers Layer { get; set; } = Layers.Default;
 
         public string Color { get; set; } = "FFFFFF";
         public string Texture { get; set; }
