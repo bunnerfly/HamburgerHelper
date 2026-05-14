@@ -102,9 +102,9 @@ public class HamburgerHelperMetadata
 
         public enum Layers
         {
-            Default = 0,
-            BelowTitle = 1,
-            AboveTitle = 2
+            Default,
+            BelowTitle,
+            AboveTitle
         }
         
         public Conditions Condition { get; set; } = Conditions.None;
