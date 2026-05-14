@@ -267,6 +267,14 @@ public static class ChapterPanelCustomization
         
         cursor.EmitDelegate(EndShaderLayerRender);
         
+        // ----- Above Title Overlay Rendering -----
+        
+        cursor.EmitLdarg0();
+        cursor.EmitLdloc2();
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveTitle);
+        cursor.EmitDelegate(DrawOverlays);
+        
+        
         // ----- Title Text & Chapter # Text Shader Rendering -----
 
         cursor.Index = 0;
@@ -319,11 +327,11 @@ public static class ChapterPanelCustomization
             cursor.EmitDelegate(EndTextShaderLayerRender);
         }
         
-        // ----- Below Title Overlay Rendering -----
+        // ----- Above Text Overlay Rendering -----
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
-        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveTitle);
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveText);
         cursor.EmitDelegate(DrawOverlays);
     }
     

@@ -104,7 +104,8 @@ public class HamburgerHelperMetadata
         {
             Default,
             BelowTitle,
-            AboveTitle
+            AboveTitle,
+            AboveText,
         }
         
         public Conditions Condition { get; set; } = Conditions.None;
