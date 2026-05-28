@@ -466,12 +466,7 @@ public static class ChapterPanelCustomization
             i => i.MatchCallvirt<OuiChapterPanel>("get_IconOffset"),
             i => i.MatchCall<Vector2>("op_Addition"),
             i => i.MatchStfld<Entity>("Position")))
-        {
-            Logger.Log(LogLevel.Info, "DEBUG", "failed");
-            return;
-        }
-        
-            // throw new HookException(il, "OuiChapterSelectIcon.SetSelectedPercent failed to match IconOffset");
+            throw new HookException(il, "OuiChapterSelectIcon.SetSelectedPercent failed to match IconOffset");
         
         cursor.Index--;
         
