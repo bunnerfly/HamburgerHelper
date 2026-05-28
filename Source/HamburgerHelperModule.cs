@@ -34,7 +34,7 @@ public class HamburgerHelperModule : EverestModule
 
     public override void Load()
     {
-        LoadOptioanlDependencies();
+        LoadOptionalDependencies();
         
         LifecycleMethods.OnLoad();
         
@@ -53,7 +53,7 @@ public class HamburgerHelperModule : EverestModule
         LifecycleMethods.OnLoadContent(firstLoad);
     }
     
-    private static void LoadOptioanlDependencies()
+    private static void LoadOptionalDependencies()
     {
         List<EverestModuleMetadata> optionalDependencies = new List<EverestModuleMetadata>();
         LoadedOptionalDependencies.Clear();
