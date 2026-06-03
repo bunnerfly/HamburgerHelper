@@ -2,6 +2,7 @@ global using Celeste;
 global using Celeste.Mod.Entities;
 global using Celeste.Mod.HamburgerHelper.Utils;
 global using Celeste.Mod.Roslyn.ModLifecycleAttributes;
+global using HookException = Celeste.Mod.HamburgerHelper.Utils.HookUtilities.HookException;
 
 global using System;
 global using System.Collections;
