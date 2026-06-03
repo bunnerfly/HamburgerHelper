@@ -45,6 +45,13 @@ entities.HamburgerHelper/TilesetSoundSplitter.attributes.description.landSoundIn
 entities.HamburgerHelper/StLaunchController.placements.name.st_launch_controller=StLaunch Controller
 entities.HamburgerHelper/StLaunchController.placements.description.st_launch_controller=Forces the player to exit StLaunch state when grounded
 
+# -- Wallboost Leniency Controller 
+
+entities.HamburgerHelper/WallboostLeniencyController.placements.name.wallboost_leniency_controller=Wallboost Leniency Controller
+entities.HamburgerHelper/WallboostLeniencyController.placements.description.wallboost_leniency_controller=Adjusts the time window after you climb jump to still be allowed to wallboost
+
+entities.HamburgerHelper/WallboostLeniencyController.attributes.description.wallboostFrames=The amount of frames after a climb jump that you can still wallboost for
+
 # -- Dreamer Refill
 
 entities.HamburgerHelper/DreamerRefill.placements.name.dreamer_refill=Dreamer Refill
