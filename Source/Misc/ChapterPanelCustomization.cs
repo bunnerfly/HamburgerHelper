@@ -10,7 +10,6 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using MethodBody = Mono.Cecil.Cil.MethodBody;
 using ELD = Celeste.Mod.HamburgerHelper.HamburgerHelperMetadata.EffectDataLayer;
-using HookException = Celeste.Mod.HamburgerHelper.Utils.HookUtilities.HookException;
 
 namespace Celeste.Mod.HamburgerHelper.Misc;
 
