@@ -1,5 +1,6 @@
 namespace Celeste.Mod.HamburgerHelper.Entities;
 
+[Tracked]
 [CustomEntity("HamburgerHelper/StLaunchController")]
 public class StLaunchController : Entity
 {
@@ -22,9 +23,6 @@ public class StLaunchController : Entity
     
     private static int PlayerOnLaunchUpdate(On.Celeste.Player.orig_LaunchUpdate orig, Player self)
     {
-        // just to add it to the tracker for sure :sobs:
-        self.Scene.Tracker.GetEntitiesTrackIfNeeded<StLaunchController>();
-        
         int controllerCount = self.Scene.Tracker.CountEntities<StLaunchController>();
         if (controllerCount == 0) return orig(self);
 
