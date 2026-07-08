@@ -168,5 +168,14 @@ triggers.HamburgerHelper/ChangeStateTrigger.attributes.description.state=State f
 triggers.HamburgerHelper/ChangeStateTrigger.attributes.description.onlyOnce=Whether or not it should remove itself permanently after use. 
 triggers.HamburgerHelper/ChangeStateTrigger.attributes.description.triggerOnlyOnce=Whether or not it should remove itself after entry, once
 
+# --- Play Sound Trigger
+
+triggers.HamburgerHelper/PlaySoundTrigger.placements.name.play_sound_trigger=Play Sound Trigger
+triggers.HamburgerHelper/PlaySoundTrigger.placements.description.play_sound_trigger=Plays a specified sound, optionally with a parameter.
+
+triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.state=State for the player to be changed to
+triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.onlyOnce=Whether or not it should remove itself permanently after use. 
+triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.triggerOnlyOnce=Whether or not it should remove itself after entry, once
+
 # ----- Effects ------
 
