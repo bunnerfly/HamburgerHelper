@@ -173,7 +173,10 @@ triggers.HamburgerHelper/ChangeStateTrigger.attributes.description.triggerOnlyOn
 triggers.HamburgerHelper/PlaySoundTrigger.placements.name.play_sound_trigger=Play Sound Trigger
 triggers.HamburgerHelper/PlaySoundTrigger.placements.description.play_sound_trigger=Plays a specified sound, optionally with a parameter.
 
-triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.state=State for the player to be changed to
+triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.eventId=Audio event to be played
+triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.parameterName=Parameter to be edited
+triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.parameterValue=Value to set parameter to
+
 triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.onlyOnce=Whether or not it should remove itself permanently after use. 
 triggers.HamburgerHelper/PlaySoundTrigger.attributes.description.triggerOnlyOnce=Whether or not it should remove itself after entry, once
 
