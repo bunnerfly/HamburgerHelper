@@ -90,7 +90,8 @@ public class HamburgerHelperMetadata
             FullClear,
             Golden,
             Silver,
-            Rainbow
+            Rainbow,
+            Flag,
         }
 
         public enum Anchors
@@ -123,6 +124,7 @@ public class HamburgerHelperMetadata
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
         public float Frame = 0;
+        public string ConditionFlag { get; set; } = "";
     }
 
     public class CustomColorData

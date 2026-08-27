@@ -300,7 +300,6 @@ public static partial class ChapterPanelCustomization
         cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveTitle);
         cursor.EmitDelegate(DrawOverlays);
         
-        
         // ----- Title Text & Chapter # Text Shader Rendering -----
 
         cursor.Index = 0;
@@ -585,6 +584,7 @@ public static partial class ChapterPanelCustomization
         AreaModeStats stats = panel.RealStats.Modes[(int) panel.Area.Mode];
         foreach (HamburgerHelperMetadata.OverlayData overlayData
             in overlays.Where(overlayData => overlayData.Condition switch { 
+                    HamburgerHelperMetadata.OverlayData.Conditions.Flag => CheckFlagCondition(overlayData),
                     HamburgerHelperMetadata.OverlayData.Conditions.None => true,
                     HamburgerHelperMetadata.OverlayData.Conditions.Clear => stats.Completed,
                     HamburgerHelperMetadata.OverlayData.Conditions.FullClear => stats.FullClear,
@@ -670,6 +670,8 @@ public static partial class ChapterPanelCustomization
         => GoldenCollected(key, stats) && CollabMapDataProcessor.MapsWithSilverBerries.Contains(key.SID);
     private static bool RainbowCollected(AreaKey key, AreaModeStats stats)
         => GoldenCollected(key, stats) && CollabMapDataProcessor.MapsWithRainbowBerries.Contains(key.SID);
+    private static bool CheckFlagCondition(HamburgerHelperMetadata.OverlayData overlayData)
+        => SaveData.Instance.HasFlag(overlayData.ConditionFlag);
     
     // these are all verbatim taken from aonkeeper4's code (with permission, again !!)
     private static void ModifyPlayOptionBgColor(OuiChapterPanel.Option option, OuiChapterPanel panel)
