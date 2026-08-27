@@ -157,10 +157,26 @@ public static partial class ChapterPanelCustomization
         
         // ----- Below Chapter Card Overlay Rendering -----
         
+        /*
+         * IL_0155: ldc.r4 -32
+         * IL_015a: newobj instance void [FNA]Microsoft.Xna.Framework.Vector2::.ctor(float32, float32)
+         * IL_015f: call valuetype [FNA]Microsoft.Xna.Framework.Vector2 [FNA]Microsoft.Xna.Framework.Vector2::op_Addition(valuetype [FNA]Microsoft.Xna.Framework.Vector2, valuetype [FNA]Microsoft.Xna.Framework.Vector2)
+         * IL_0000: ** ADD HERE
+         * IL_0164: callvirt instance void Monocle.MTexture::Draw(valuetype [FNA]Microsoft.Xna.Framework.Vector2)
+         */
+        if (!cursor.TryGotoNextBestFit(MoveType.Before,
+            i => i.MatchLdcR4(-32f),
+            i => i.MatchNewobj<Vector2>(".ctor"),
+            i => i.MatchCall<Vector2>("op_Addition"),
+            i => i.MatchCallvirt<MTexture>("Draw")))
+            throw new HookException(il, "Unable to find cardtop texture rendering");
+        
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
         cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.BelowCard);
         cursor.EmitDelegate(DrawOverlays);
+
+        cursor.Index = 0;
         
         // ----- Chapter Card Shader Rendering -----
         
