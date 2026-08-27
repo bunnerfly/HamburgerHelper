@@ -1,5 +1,6 @@
 #pragma warning disable CA2208
 
+using System.Text.RegularExpressions;
 using Celeste.Mod.CollabUtils2;
 using Celeste.Mod.CollabUtils2.UI;
 using Celeste.Mod.Helpers;
@@ -20,13 +21,16 @@ namespace Celeste.Mod.HamburgerHelper.Misc;
 // mostly because of rughelper having severe conflicts with the original version of this
 
 // i learned sooooo much while making this and it was really fun!
-public static class ChapterPanelCustomization
+public static partial class ChapterPanelCustomization
 {
     private static ILHook ilHookOuiChapterPanelSwapRoutine;
     private static ILHook ilHookOuiChapterPanelOrigDrawCheckpoint;
     private static ILHook ilHookOuiChapterSelectIconOrigUpdate;
     
     private static ILHook ilHookInGameOverworldHelperUpdateIconRoutine;
+    
+    [GeneratedRegex("\\d+$")]
+    private static partial Regex SubtextureRegex();
     
     [OnLoad]
     internal static void Load()
@@ -150,6 +154,13 @@ public static class ChapterPanelCustomization
     private static void OuiChapterPanelOnRender(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
+        
+        // ----- Below Chapter Card Overlay Rendering -----
+        
+        cursor.EmitLdarg0();
+        cursor.EmitLdloc2();
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.BelowCard);
+        cursor.EmitDelegate(DrawOverlays);
         
         // ----- Chapter Card Shader Rendering -----
         
@@ -569,7 +580,23 @@ public static class ChapterPanelCustomization
                        .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
                        && overlayData.Layer == layer))
         {
-            MTexture texture = GFX.Gui[overlayData.Texture];
+            MTexture texture;
+            if (overlayData.Animated)
+            {
+                string subtexturePath = SubtextureRegex().Replace(overlayData.Texture, string.Empty);
+                List<MTexture> textures = GFX.Gui.GetAtlasSubtextures(subtexturePath);
+                if (textures.Count > 1)
+                {
+                    overlayData.Frame += overlayData.AnimationSpeed * Engine.DeltaTime;
+                    overlayData.Frame %= textures.Count;
+                }
+                texture = textures[(int)overlayData.Frame];
+            }
+            else
+            {
+                texture = GFX.Gui[overlayData.Texture];
+            }
+            
             Color color = Calc.HexToColor(overlayData.Color);
             bool renderShaderThisLayer = false;
             
@@ -1000,6 +1027,6 @@ public static class ChapterPanelCustomization
         scaleX = (float)viewport.Width / referenceX;
         scaleY = (float)viewport.Height / referenceY;
     }
-    
-    # endregion
+
+    #endregion
 }

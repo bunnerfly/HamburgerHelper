@@ -97,11 +97,12 @@ public class HamburgerHelperMetadata
         {
             None,
             Card,
-            Stats
+            Stats,
         }
 
         public enum Layers
         {
+            BelowCard,
             Default,
             BelowTitle,
             AboveTitle,
@@ -119,6 +120,9 @@ public class HamburgerHelperMetadata
         public float[] Offset { get; set; } = [0, 0];
         public Vector2 PositionOffset => new Vector2(Offset[0], Offset[1]);
         public EffectDataLayer RenderEffect { get; set; }
+        public bool Animated { get; set; } = false;
+        public float AnimationSpeed { get; set; } = 12;
+        public float Frame = 0;
     }
 
     public class CustomColorData
