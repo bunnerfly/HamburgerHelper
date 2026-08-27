@@ -92,6 +92,7 @@ public class HamburgerHelperMetadata
             Silver,
             Rainbow,
             Flag,
+            NotFlag,
         }
 
         public enum Anchors

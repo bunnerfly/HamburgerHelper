@@ -584,13 +584,14 @@ public static partial class ChapterPanelCustomization
         AreaModeStats stats = panel.RealStats.Modes[(int) panel.Area.Mode];
         foreach (HamburgerHelperMetadata.OverlayData overlayData
             in overlays.Where(overlayData => overlayData.Condition switch { 
-                    HamburgerHelperMetadata.OverlayData.Conditions.Flag => CheckFlagCondition(overlayData),
                     HamburgerHelperMetadata.OverlayData.Conditions.None => true,
                     HamburgerHelperMetadata.OverlayData.Conditions.Clear => stats.Completed,
                     HamburgerHelperMetadata.OverlayData.Conditions.FullClear => stats.FullClear,
                     HamburgerHelperMetadata.OverlayData.Conditions.Golden => GoldenCollected(panel.Area, stats),
                     HamburgerHelperMetadata.OverlayData.Conditions.Silver => SilverCollected(panel.Area, stats),
                     HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => RainbowCollected(panel.Area, stats),
+                    HamburgerHelperMetadata.OverlayData.Conditions.Flag => CheckFlagCondition(overlayData, invert: false),
+                    HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => CheckFlagCondition(overlayData, invert: true),
                     _ => throw new ArgumentOutOfRangeException()
                 })
                        .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
@@ -670,8 +671,8 @@ public static partial class ChapterPanelCustomization
         => GoldenCollected(key, stats) && CollabMapDataProcessor.MapsWithSilverBerries.Contains(key.SID);
     private static bool RainbowCollected(AreaKey key, AreaModeStats stats)
         => GoldenCollected(key, stats) && CollabMapDataProcessor.MapsWithRainbowBerries.Contains(key.SID);
-    private static bool CheckFlagCondition(HamburgerHelperMetadata.OverlayData overlayData)
-        => SaveData.Instance.HasFlag(overlayData.ConditionFlag);
+    private static bool CheckFlagCondition(HamburgerHelperMetadata.OverlayData overlayData, bool invert = false)
+        => SaveData.Instance.HasFlag(overlayData.ConditionFlag) != invert;
     
     // these are all verbatim taken from aonkeeper4's code (with permission, again !!)
     private static void ModifyPlayOptionBgColor(OuiChapterPanel.Option option, OuiChapterPanel panel)
