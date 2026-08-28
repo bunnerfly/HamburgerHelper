@@ -631,13 +631,28 @@ public static partial class ChapterPanelCustomization
                     DepthStencilState.Default, RasterizerState.CullNone, effect, transformMatrix);
             }
             
+            HiresRenderer.EndRender();
+            HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
+            
             switch (overlayData.Anchor)
             {
                 case HamburgerHelperMetadata.OverlayData.Anchors.None:
+                    if (overlayData.DrawCentered)
+                    {
+                        texture.DrawCentered(panel.Position + overlayData.PositionOffset, color, overlayData.ScaleVector, overlayData.Rotation);
+                        break;
+                    }
                     texture.Draw(panel.Position + overlayData.PositionOffset, Vector2.Zero, color);
                     break;
                 
                 case HamburgerHelperMetadata.OverlayData.Anchors.Card:
+                    if (overlayData.DrawCentered)
+                    {
+                        texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
+                            .DrawCentered(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
+                                color, overlayData.ScaleVector, overlayData.Rotation);
+                        break;
+                    }
                     texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
                            .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
                                Vector2.Zero, color);
@@ -648,12 +663,15 @@ public static partial class ChapterPanelCustomization
                         break;
                     
                     texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + overlayData.PositionOffset,
-                        color);
+                        color, overlayData.ScaleVector, overlayData.Rotation);
                     break;
                 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            
+            HiresRenderer.EndRender();
+            HiresRenderer.BeginRender();
             
             // should be optimized with EndShaderLayerRender but i need to finish this
             if (renderShaderThisLayer)
