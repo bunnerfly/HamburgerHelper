@@ -604,10 +604,10 @@ public static partial class ChapterPanelCustomization
                 List<MTexture> textures = GFX.Gui.GetAtlasSubtextures(subtexturePath);
                 if (textures.Count > 1)
                 {
-                    overlayData.Frame += overlayData.AnimationSpeed * Engine.DeltaTime;
-                    overlayData.Frame %= textures.Count;
+                    overlayData.CurrentFrame += overlayData.AnimationSpeed * Engine.DeltaTime;
+                    overlayData.CurrentFrame %= textures.Count;
                 }
-                texture = textures[(int)overlayData.Frame];
+                texture = textures[(int)overlayData.CurrentFrame];
             }
             else
             {
@@ -627,53 +627,75 @@ public static partial class ChapterPanelCustomization
                 Matrix transformMatrix = HiresRenderer.DrawToBuffer ? Matrix.Identity : Engine.ScreenMatrix;
                 effect = ApplyParameters(effect, data, transformMatrix);
                 
-                Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                SamplerState samplerState = overlayData.RemoveAntialiasing ? SamplerState.PointClamp : SamplerState.LinearClamp;
+                
+                Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState,
                     DepthStencilState.Default, RasterizerState.CullNone, effect, transformMatrix);
             }
             
-            HiresRenderer.EndRender();
-            HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
-            
-            switch (overlayData.Anchor)
+            if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
             {
-                case HamburgerHelperMetadata.OverlayData.Anchors.None:
-                    if (overlayData.DrawCentered)
-                    {
-                        texture.DrawCentered(panel.Position + overlayData.PositionOffset, color, overlayData.ScaleVector, overlayData.Rotation);
-                        break;
-                    }
-                    texture.Draw(panel.Position + overlayData.PositionOffset, Vector2.Zero, color);
-                    break;
-                
-                case HamburgerHelperMetadata.OverlayData.Anchors.Card:
-                    if (overlayData.DrawCentered)
-                    {
-                        float RealHeight = texture.Height * overlayData.ScaleVector.Y;
-                        texture.DrawCentered(panel.Position + new Vector2(RealHeight, cardTop.Height - 32f + panel.height - RealHeight / 2f) + overlayData.PositionOffset,
-                                color, overlayData.ScaleVector, overlayData.Rotation);
-                        break;
-                    }
-                    texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
-                           .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
-                               Vector2.Zero, color);
-                    break;
-                
-                case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
-                    if (!panel.selectingMode)
-                        break;
-                    
-                    texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + overlayData.PositionOffset,
-                        color, overlayData.ScaleVector, overlayData.Rotation);
-                    break;
-                
-                default:
-                    throw new ArgumentOutOfRangeException();
+                HiresRenderer.EndRender();
+                HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
             }
             
-            HiresRenderer.EndRender();
-            HiresRenderer.BeginRender();
+            if (overlayData.DrawCentered)
+            {
+                switch (overlayData.Anchor)
+                {
+                    case HamburgerHelperMetadata.OverlayData.Anchors.None:
+                        texture.DrawCentered(panel.Position + overlayData.PositionOffset, color,
+                            overlayData.ScaleVector, overlayData.RotationRadians);
+                        break;
+                    case HamburgerHelperMetadata.OverlayData.Anchors.Card:
+                        float scaledHeight = texture.Height * overlayData.ScaleVector.Y;
+                        Vector2 cardOffset = new Vector2(scaledHeight, cardTop.Height - 32f + panel.height - scaledHeight / 2f);
+                        
+                        texture.DrawCentered(panel.Position + cardOffset + overlayData.PositionOffset,
+                            color, overlayData.ScaleVector, overlayData.RotationRadians);
+                        break;
+                    case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            else
+            {
+                switch (overlayData.Anchor)
+                {
+                    case HamburgerHelperMetadata.OverlayData.Anchors.None:
+                        texture.Draw(panel.Position + overlayData.PositionOffset, Vector2.Zero, color,
+                            overlayData.ScaleVector, overlayData.RotationRadians);
+                        break;
+                    case HamburgerHelperMetadata.OverlayData.Anchors.Card:
+                        texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
+                            .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
+                                Vector2.Zero, color, overlayData.ScaleVector, overlayData.RotationRadians);
+                        break;
+                    case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
             
-            // should be optimized with EndShaderLayerRender but i need to finish this
+            if (overlayData.Anchor == HamburgerHelperMetadata.OverlayData.Anchors.Stats)
+            {
+                if (!panel.selectingMode)
+                    break;
+                
+                texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + overlayData.PositionOffset,
+                    color, overlayData.ScaleVector, overlayData.RotationRadians);
+                break;
+            }
+            
+            if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
+            {
+                HiresRenderer.EndRender();
+                HiresRenderer.BeginRender();
+            }
+            
             if (renderShaderThisLayer)
             {
                 EndShaderLayerRender();

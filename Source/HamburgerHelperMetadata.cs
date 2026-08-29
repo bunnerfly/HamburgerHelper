@@ -119,10 +119,9 @@ public class HamburgerHelperMetadata
         
         public string Color { get; set; } = "FFFFFF";
         public string Texture { get; set; }
-        
-        public bool DrawCentered {get; set;} = false;
-        
+
         public float Rotation { get; set; } = 0;
+        public float RotationRadians => MathHelper.ToRadians(Rotation);
         
         public float[] Scale { get; set; } = [1, 1];
         public Vector2 ScaleVector => new Vector2(Scale[0], Scale[1]);
@@ -133,6 +132,9 @@ public class HamburgerHelperMetadata
         public float CurrentFrame = 0;
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
+        
+        public bool RemoveAntialiasing { get; set; } = false;
+        public bool DrawCentered { get; set; } = false;
         
         public EffectDataLayer RenderEffect { get; set; }
     }
