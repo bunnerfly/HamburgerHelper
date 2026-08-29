@@ -648,7 +648,8 @@ public static partial class ChapterPanelCustomization
                 case HamburgerHelperMetadata.OverlayData.Anchors.Card:
                     if (overlayData.DrawCentered)
                     {
-                        texture.DrawCentered(panel.Position + new Vector2(texture.Height, cardTop.Height - 32f + panel.height - texture.Height / 2f) + overlayData.PositionOffset,
+                        float RealHeight = texture.Height * overlayData.ScaleVector.Y;
+                        texture.DrawCentered(panel.Position + new Vector2(RealHeight, cardTop.Height - 32f + panel.height - RealHeight / 2f) + overlayData.PositionOffset,
                                 color, overlayData.ScaleVector, overlayData.Rotation);
                         break;
                     }
