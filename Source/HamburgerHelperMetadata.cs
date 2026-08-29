@@ -112,24 +112,29 @@ public class HamburgerHelperMetadata
         }
         
         public Conditions Condition { get; set; } = Conditions.None;
+        public string ConditionFlag { get; set; } = "";
+        
         public Anchors Anchor { get; set; } = Anchors.Card;
         public Layers Layer { get; set; } = Layers.Default;
-
+        
         public string Color { get; set; } = "FFFFFF";
         public string Texture { get; set; }
         
-        // ReSharper disable once MemberCanBePrivate.Global
         public bool DrawCentered {get; set;} = false;
+        
+        public float Rotation { get; set; } = 0;
+        
         public float[] Scale { get; set; } = [1, 1];
         public Vector2 ScaleVector => new Vector2(Scale[0], Scale[1]);
-        public float Rotation { get; set; } = 0;
+        
         public float[] Offset { get; set; } = [0, 0];
         public Vector2 PositionOffset => new Vector2(Offset[0], Offset[1]);
-        public EffectDataLayer RenderEffect { get; set; }
+        
+        public float CurrentFrame = 0;
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
-        public float Frame = 0;
-        public string ConditionFlag { get; set; } = "";
+        
+        public EffectDataLayer RenderEffect { get; set; }
     }
 
     public class CustomColorData
