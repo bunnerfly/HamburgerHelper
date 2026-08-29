@@ -584,18 +584,18 @@ public static partial class ChapterPanelCustomization
         AreaModeStats stats = panel.RealStats.Modes[(int) panel.Area.Mode];
         foreach (HamburgerHelperMetadata.OverlayData overlayData
             in overlays.Where(overlayData => overlayData.Condition switch { 
-                    HamburgerHelperMetadata.OverlayData.Conditions.None => true,
-                    HamburgerHelperMetadata.OverlayData.Conditions.Clear => stats.Completed,
-                    HamburgerHelperMetadata.OverlayData.Conditions.FullClear => stats.FullClear,
-                    HamburgerHelperMetadata.OverlayData.Conditions.Golden => GoldenCollected(panel.Area, stats),
-                    HamburgerHelperMetadata.OverlayData.Conditions.Silver => SilverCollected(panel.Area, stats),
-                    HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => RainbowCollected(panel.Area, stats),
-                    HamburgerHelperMetadata.OverlayData.Conditions.Flag => CheckFlagCondition(overlayData, invert: false),
-                    HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => CheckFlagCondition(overlayData, invert: true),
-                    _ => throw new ArgumentOutOfRangeException()
-                })
-                       .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
-                       && overlayData.Layer == layer))
+                HamburgerHelperMetadata.OverlayData.Conditions.None => true,
+                HamburgerHelperMetadata.OverlayData.Conditions.Clear => stats.Completed,
+                HamburgerHelperMetadata.OverlayData.Conditions.FullClear => stats.FullClear,
+                HamburgerHelperMetadata.OverlayData.Conditions.Golden => GoldenCollected(panel.Area, stats),
+                HamburgerHelperMetadata.OverlayData.Conditions.Silver => SilverCollected(panel.Area, stats),
+                HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => RainbowCollected(panel.Area, stats),
+                HamburgerHelperMetadata.OverlayData.Conditions.Flag => CheckFlagCondition(overlayData, invert: false),
+                HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => CheckFlagCondition(overlayData, invert: true),
+                _ => throw new ArgumentOutOfRangeException()
+            })
+                   .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
+                   && overlayData.Layer == layer))
         {
             MTexture texture;
             if (overlayData.Animated)
