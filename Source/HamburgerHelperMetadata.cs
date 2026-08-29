@@ -119,6 +119,10 @@ public class HamburgerHelperMetadata
         public string Texture { get; set; }
         
         // ReSharper disable once MemberCanBePrivate.Global
+        public bool DrawCentered {get; set;} = false;
+        public float[] Scale { get; set; } = [1, 1];
+        public Vector2 ScaleVector => new Vector2(Scale[0], Scale[1]);
+        public float Rotation { get; set; } = 0;
         public float[] Offset { get; set; } = [0, 0];
         public Vector2 PositionOffset => new Vector2(Offset[0], Offset[1]);
         public EffectDataLayer RenderEffect { get; set; }
