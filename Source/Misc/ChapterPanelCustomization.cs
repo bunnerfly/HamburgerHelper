@@ -647,7 +647,7 @@ public static partial class ChapterPanelCustomization
             
             if (FrostHelperImports.IsImported)
             {
-                dynamicOverlayData.Initialize<float?>("finalModifiedRotation", overlayData.RotationRadians);
+                dynamicOverlayData.Initialize<float?>("finalModifiedRotation", overlayData.Rotation);
                 dynamicOverlayData.Initialize<Vector2?>("finalModifiedScale", overlayData.ScaleVector);
                 dynamicOverlayData.Initialize<Vector2?>("finalModifiedPosition", overlayData.PositionOffset);
 
@@ -659,31 +659,33 @@ public static partial class ChapterPanelCustomization
                 (
                     overlayData.RotationMode,
                     overlayData.RotationFunction,
-                    overlayData.RotationRadians
+                    overlayData.Rotation
                 );
                 finalModifiedScale = finalModifiedScale.ModifyValue
                 (
-                    overlayData.ScaleXMode,
-                    overlayData.ScaleYMode,
-                    overlayData.ScaleXFunction,
-                    overlayData.ScaleYFunction,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleMode : overlayData.ScaleXMode,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleMode : overlayData.ScaleYMode,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleFunction : overlayData.ScaleXFunction,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleFunction : overlayData.ScaleYFunction,
                     overlayData.ScaleVector
                 );
                 finalModifiedPosition = finalModifiedPosition.ModifyValue
                 (
-                    overlayData.OffsetXMode,
-                    overlayData.OffsetYMode,
-                    overlayData.OffsetXFunction,
-                    overlayData.OffsetYFunction,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetMode : overlayData.OffsetXMode,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetMode : overlayData.OffsetYMode,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetFunction : overlayData.OffsetXFunction,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetFunction : overlayData.OffsetYFunction,
                     overlayData.PositionOffset
                 );
             }
             else
             {
-                finalModifiedRotation = overlayData.RotationRadians;
+                finalModifiedRotation = overlayData.Rotation;
                 finalModifiedScale = overlayData.ScaleVector;
                 finalModifiedPosition = overlayData.PositionOffset;
             }
+
+            finalModifiedRotation = MathHelper.ToRadians(finalModifiedRotation);
 
             if (overlayData.DrawCentered)
             {
