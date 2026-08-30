@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.HamburgerHelper.Exports;
+using Celeste.Mod.HamburgerHelper.ModInterop.Imports;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.HamburgerHelper;
@@ -35,6 +36,8 @@ public class HamburgerHelperModule : EverestModule
     public override void Load()
     {
         LoadOptionalDependencies();
+        
+        FrostHelperImports.Load();
         
         LifecycleMethods.OnLoad();
         

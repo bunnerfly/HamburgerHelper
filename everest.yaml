@@ -7,3 +7,5 @@
   OptionalDependencies:
     - Name: CollabUtils2
       Version: 1.12.2
+    - Name: FrostHelper
+      Version: 1.76.6

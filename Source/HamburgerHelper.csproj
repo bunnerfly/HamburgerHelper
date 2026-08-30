@@ -18,6 +18,10 @@
 
     <ItemGroup>
         <PackageReference Include="CelesteMod.Roslyn.ModLifecycleAttributes" Version="1.0.0" PrivateAssets="all" />
+        <PackageReference Include="ModInteropImportGenerator" Version="1.1.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.1" PrivateAssets="all" ExcludeAssets="runtime" />
         <PackageReference Include="MonoMod.Patcher" Version="25.0.0-prerelease.2" />
         <PackageReference Include="CelesteAnalyzer" Version="*" />
