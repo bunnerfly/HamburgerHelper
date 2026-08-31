@@ -3,6 +3,7 @@
 using System.Text.RegularExpressions;
 using Celeste.Mod.CollabUtils2;
 using Celeste.Mod.CollabUtils2.UI;
+using Celeste.Mod.HamburgerHelper.ModInterop.Imports;
 using Celeste.Mod.Helpers;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -639,20 +640,70 @@ public static partial class ChapterPanelCustomization
                 HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
             }
             
+            DynamicData dynamicOverlayData = DynamicData.For(overlayData);
+            float finalModifiedRotation;
+            Vector2 finalModifiedScale;
+            Vector2 finalModifiedPosition;
+            
+            if (FrostHelperImports.IsImported)
+            {
+                dynamicOverlayData.Initialize<float?>("finalModifiedRotation", overlayData.Rotation);
+                dynamicOverlayData.Initialize<Vector2?>("finalModifiedScale", overlayData.ScaleVector);
+                dynamicOverlayData.Initialize<Vector2?>("finalModifiedPosition", overlayData.PositionOffset);
+
+                finalModifiedRotation = dynamicOverlayData.Get<float>("finalModifiedRotation");
+                finalModifiedScale = dynamicOverlayData.Get<Vector2>("finalModifiedScale");
+                finalModifiedPosition = dynamicOverlayData.Get<Vector2>("finalModifiedPosition");
+
+                finalModifiedRotation = finalModifiedRotation.ModifyValue
+                (
+                    overlayData.RotationMode,
+                    overlayData.RotationFunction,
+                    overlayData.Rotation
+                );
+                finalModifiedScale = finalModifiedScale.ModifyValue
+                (
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleMode : overlayData.ScaleXMode,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleMode : overlayData.ScaleYMode,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleFunction : overlayData.ScaleXFunction,
+                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleFunction : overlayData.ScaleYFunction,
+                    overlayData.ScaleVector
+                );
+                finalModifiedPosition = finalModifiedPosition.ModifyValue
+                (
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetMode : overlayData.OffsetXMode,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetMode : overlayData.OffsetYMode,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetFunction : overlayData.OffsetXFunction,
+                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetFunction : overlayData.OffsetYFunction,
+                    overlayData.PositionOffset
+                );
+            }
+            else
+            {
+                finalModifiedRotation = overlayData.Rotation;
+                finalModifiedScale = overlayData.ScaleVector;
+                finalModifiedPosition = overlayData.PositionOffset;
+            }
+
+            finalModifiedRotation = MathHelper.ToRadians(finalModifiedRotation);
+
             if (overlayData.DrawCentered)
             {
+                float scaledHeight = texture.Height * finalModifiedScale.Y;
+                
                 switch (overlayData.Anchor)
                 {
                     case HamburgerHelperMetadata.OverlayData.Anchors.None:
-                        texture.DrawCentered(panel.Position + overlayData.PositionOffset, color,
-                            overlayData.ScaleVector, overlayData.RotationRadians);
+                        Vector2 cardOffset1 = new Vector2(scaledHeight, scaledHeight / 2f);
+                        
+                        texture.DrawCentered(panel.Position + finalModifiedPosition + cardOffset1, color,
+                            finalModifiedScale, finalModifiedRotation);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Card:
-                        float scaledHeight = texture.Height * overlayData.ScaleVector.Y;
-                        Vector2 cardOffset = new Vector2(scaledHeight, cardTop.Height - 32f + panel.height - scaledHeight / 2f);
+                        Vector2 cardOffset2 = new Vector2(scaledHeight, cardTop.Height - 32f + panel.height - scaledHeight / 2f);
                         
-                        texture.DrawCentered(panel.Position + cardOffset + overlayData.PositionOffset,
-                            color, overlayData.ScaleVector, overlayData.RotationRadians);
+                        texture.DrawCentered(panel.Position + cardOffset2 + finalModifiedPosition,
+                            color, finalModifiedScale, finalModifiedRotation);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
                         break;
@@ -665,13 +716,13 @@ public static partial class ChapterPanelCustomization
                 switch (overlayData.Anchor)
                 {
                     case HamburgerHelperMetadata.OverlayData.Anchors.None:
-                        texture.Draw(panel.Position + overlayData.PositionOffset, Vector2.Zero, color,
-                            overlayData.ScaleVector, overlayData.RotationRadians);
+                        texture.Draw(panel.Position + finalModifiedPosition, Vector2.Zero, color,
+                            finalModifiedScale, finalModifiedRotation);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Card:
                         texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
-                            .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
-                                Vector2.Zero, color, overlayData.ScaleVector, overlayData.RotationRadians);
+                            .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + finalModifiedPosition,
+                                Vector2.Zero, color, finalModifiedScale, finalModifiedRotation);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
                         break;
@@ -685,11 +736,18 @@ public static partial class ChapterPanelCustomization
                 if (!panel.selectingMode)
                     break;
                 
-                texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + overlayData.PositionOffset,
-                    color, overlayData.ScaleVector, overlayData.RotationRadians);
+                texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + finalModifiedPosition,
+                    color, finalModifiedScale, finalModifiedRotation);
                 break;
             }
             
+            if (FrostHelperImports.IsImported)
+            {
+                dynamicOverlayData.Set("finalModifiedRotation", finalModifiedRotation);
+                dynamicOverlayData.Set("finalModifiedScale", finalModifiedScale);
+                dynamicOverlayData.Set("finalModifiedPosition", finalModifiedPosition);
+            }
+
             if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
             {
                 HiresRenderer.EndRender();
