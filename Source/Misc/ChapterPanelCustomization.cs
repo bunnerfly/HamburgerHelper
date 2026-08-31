@@ -588,11 +588,11 @@ public static partial class ChapterPanelCustomization
                 HamburgerHelperMetadata.OverlayData.Conditions.None => true,
                 HamburgerHelperMetadata.OverlayData.Conditions.Clear => stats.Completed,
                 HamburgerHelperMetadata.OverlayData.Conditions.FullClear => stats.FullClear,
-                HamburgerHelperMetadata.OverlayData.Conditions.Golden => GoldenCollected(panel.Area, stats),
-                HamburgerHelperMetadata.OverlayData.Conditions.Silver => SilverCollected(panel.Area, stats),
-                HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => RainbowCollected(panel.Area, stats),
-                HamburgerHelperMetadata.OverlayData.Conditions.Flag => CheckFlagCondition(overlayData, invert: false),
-                HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => CheckFlagCondition(overlayData, invert: true),
+                HamburgerHelperMetadata.OverlayData.Conditions.Golden => OverlayUtils.GoldenCollected(panel.Area, stats),
+                HamburgerHelperMetadata.OverlayData.Conditions.Silver => OverlayUtils.SilverCollected(panel.Area, stats),
+                HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => OverlayUtils.RainbowCollected(panel.Area, stats),
+                HamburgerHelperMetadata.OverlayData.Conditions.Flag => OverlayUtils.CheckFlagCondition(overlayData, invert: false),
+                HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => OverlayUtils.CheckFlagCondition(overlayData, invert: true),
                 _ => throw new ArgumentOutOfRangeException()
             })
                    .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
@@ -640,70 +640,25 @@ public static partial class ChapterPanelCustomization
                 HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
             }
             
-            DynamicData dynamicOverlayData = DynamicData.For(overlayData);
-            float finalModifiedRotation;
-            Vector2 finalModifiedScale;
-            Vector2 finalModifiedPosition;
+            // brick of code so good it has me bricked up too
+            overlayData.ProcessSessionExpressions();
             
-            if (FrostHelperImports.IsImported)
-            {
-                dynamicOverlayData.Initialize<float?>("finalModifiedRotation", overlayData.Rotation);
-                dynamicOverlayData.Initialize<Vector2?>("finalModifiedScale", overlayData.ScaleVector);
-                dynamicOverlayData.Initialize<Vector2?>("finalModifiedPosition", overlayData.PositionOffset);
-
-                finalModifiedRotation = dynamicOverlayData.Get<float>("finalModifiedRotation");
-                finalModifiedScale = dynamicOverlayData.Get<Vector2>("finalModifiedScale");
-                finalModifiedPosition = dynamicOverlayData.Get<Vector2>("finalModifiedPosition");
-
-                finalModifiedRotation = finalModifiedRotation.ModifyValue
-                (
-                    overlayData.RotationMode,
-                    overlayData.RotationFunction,
-                    overlayData.Rotation
-                );
-                finalModifiedScale = finalModifiedScale.ModifyValue
-                (
-                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleMode : overlayData.ScaleXMode,
-                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleMode : overlayData.ScaleYMode,
-                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleFunction : overlayData.ScaleXFunction,
-                    !string.IsNullOrWhiteSpace(overlayData.ScaleFunction) ? overlayData.ScaleFunction : overlayData.ScaleYFunction,
-                    overlayData.ScaleVector
-                );
-                finalModifiedPosition = finalModifiedPosition.ModifyValue
-                (
-                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetMode : overlayData.OffsetXMode,
-                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetMode : overlayData.OffsetYMode,
-                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetFunction : overlayData.OffsetXFunction,
-                    !string.IsNullOrWhiteSpace(overlayData.OffsetFunction) ? overlayData.OffsetFunction : overlayData.OffsetYFunction,
-                    overlayData.PositionOffset
-                );
-            }
-            else
-            {
-                finalModifiedRotation = overlayData.Rotation;
-                finalModifiedScale = overlayData.ScaleVector;
-                finalModifiedPosition = overlayData.PositionOffset;
-            }
-
-            finalModifiedRotation = MathHelper.ToRadians(finalModifiedRotation);
-
             if (overlayData.DrawCentered)
             {
-                float scaledHeight = texture.Height * finalModifiedScale.Y;
-                
+                float scaledHeight = texture.Height * overlayData.ScaleVector.Y;
+
+                Vector2 cardOffset;
                 switch (overlayData.Anchor)
                 {
                     case HamburgerHelperMetadata.OverlayData.Anchors.None:
-                        Vector2 cardOffset1 = new Vector2(scaledHeight, scaledHeight / 2f);
-                        
-                        texture.DrawCentered(panel.Position + finalModifiedPosition + cardOffset1, color,
-                            finalModifiedScale, finalModifiedRotation);
+                        cardOffset = new Vector2(scaledHeight, scaledHeight / 2f);
+                        texture.DrawCentered(panel.Position + overlayData.PositionOffset + cardOffset, color,
+                            overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Card:
-                        Vector2 cardOffset2 = new Vector2(scaledHeight, cardTop.Height - 32f + panel.height - scaledHeight / 2f);
-                        
-                        texture.DrawCentered(panel.Position + cardOffset2 + finalModifiedPosition,
-                            color, finalModifiedScale, finalModifiedRotation);
+                        cardOffset = new Vector2(scaledHeight, cardTop.Height - 32f + panel.height - scaledHeight / 2f);
+                        texture.DrawCentered(panel.Position + cardOffset + overlayData.PositionOffset,
+                            color, overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
                         break;
@@ -716,13 +671,13 @@ public static partial class ChapterPanelCustomization
                 switch (overlayData.Anchor)
                 {
                     case HamburgerHelperMetadata.OverlayData.Anchors.None:
-                        texture.Draw(panel.Position + finalModifiedPosition, Vector2.Zero, color,
-                            finalModifiedScale, finalModifiedRotation);
+                        texture.Draw(panel.Position + overlayData.PositionOffset, Vector2.Zero, color,
+                            overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Card:
                         texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
-                            .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + finalModifiedPosition,
-                                Vector2.Zero, color, finalModifiedScale, finalModifiedRotation);
+                            .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
+                                Vector2.Zero, color, overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
                     case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
                         break;
@@ -736,16 +691,9 @@ public static partial class ChapterPanelCustomization
                 if (!panel.selectingMode)
                     break;
                 
-                texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + finalModifiedPosition,
-                    color, finalModifiedScale, finalModifiedRotation);
+                texture.DrawCentered(panel.Position + panel.contentOffset + Vector2.UnitY * 170f + overlayData.PositionOffset,
+                    color, overlayData.ScaleVector, overlayData.RotationRadians);
                 break;
-            }
-            
-            if (FrostHelperImports.IsImported)
-            {
-                dynamicOverlayData.Set("finalModifiedRotation", finalModifiedRotation);
-                dynamicOverlayData.Set("finalModifiedScale", finalModifiedScale);
-                dynamicOverlayData.Set("finalModifiedPosition", finalModifiedPosition);
             }
 
             if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
@@ -762,15 +710,6 @@ public static partial class ChapterPanelCustomization
             i++;
         }
     }
-    
-    private static bool GoldenCollected(AreaKey key, AreaModeStats stats)
-        => AreaData.Get(key).Mode[(int) key.Mode].MapData.Goldenberries.Any(berry => stats.Strawberries.Contains(new EntityID(berry.Level.Name, berry.ID)));
-    private static bool SilverCollected(AreaKey key, AreaModeStats stats)
-        => GoldenCollected(key, stats) && CollabMapDataProcessor.MapsWithSilverBerries.Contains(key.SID);
-    private static bool RainbowCollected(AreaKey key, AreaModeStats stats)
-        => GoldenCollected(key, stats) && CollabMapDataProcessor.MapsWithRainbowBerries.Contains(key.SID);
-    private static bool CheckFlagCondition(HamburgerHelperMetadata.OverlayData overlayData, bool invert = false)
-        => SaveData.Instance.HasFlag(overlayData.ConditionFlag) != invert;
     
     // these are all verbatim taken from aonkeeper4's code (with permission, again !!)
     private static void ModifyPlayOptionBgColor(OuiChapterPanel.Option option, OuiChapterPanel panel)

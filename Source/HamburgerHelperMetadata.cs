@@ -128,26 +128,34 @@ public class HamburgerHelperMetadata
         public string Texture { get; set; }
 
         public float Rotation { get; set; } = 0;
+        public float FinalRotation = 0;
         public string RotationFunction { get; set; } = "";
         public ModifierModes RotationMode { get; set; } = ModifierModes.Set;
+        public float RotationRadians => MathHelper.ToRadians(FinalRotation);
         
         public float[] Scale { get; set; } = [1, 1];
+        public Vector2 FinalScale = Vector2.One;
         public string ScaleFunction { get; set; } = "";
         public string ScaleXFunction { get; set; } = "";
         public string ScaleYFunction { get; set; } = "";
         public ModifierModes ScaleMode { get; set; } = ModifierModes.Set;
         public ModifierModes ScaleXMode { get; set; } = ModifierModes.Set;
         public ModifierModes ScaleYMode { get; set; } = ModifierModes.Set;
-        public Vector2 ScaleVector => new Vector2(Scale[0], Scale[1]);
+        
+        public Vector2 OrigScale => new Vector2(Scale[0], Scale[1]);
+        public Vector2 ScaleVector => new Vector2(FinalScale.X, FinalScale.Y);
         
         public float[] Offset { get; set; } = [0, 0];
+        public Vector2 FinalOffset = Vector2.Zero;
         public string OffsetFunction { get; set; } = "";
         public string OffsetXFunction { get; set; } = "";
         public string OffsetYFunction { get; set; } = "";
         public ModifierModes OffsetMode { get; set; } = ModifierModes.Set;
         public ModifierModes OffsetXMode { get; set; } = ModifierModes.Set;
         public ModifierModes OffsetYMode { get; set; } = ModifierModes.Set;
-        public Vector2 PositionOffset => new Vector2(Offset[0], Offset[1]);
+        
+        public Vector2 OrigOffset => new Vector2(Offset[0], Offset[1]);
+        public Vector2 PositionOffset => new Vector2(FinalOffset.X, FinalOffset.Y);
         
         public float CurrentFrame = 0;
         public bool Animated { get; set; } = false;
