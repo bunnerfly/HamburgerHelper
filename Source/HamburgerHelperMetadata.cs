@@ -163,6 +163,7 @@ public class HamburgerHelperMetadata
         
         public bool RemoveAntialiasing { get; set; } = false;
         public bool DrawCentered { get; set; } = false;
+        public bool UseGameplayAtlas { get; set; } = false;
         
         public EffectDataLayer RenderEffect { get; set; }
     }

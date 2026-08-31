@@ -595,14 +595,16 @@ public static partial class ChapterPanelCustomization
                 HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => OverlayUtils.CheckFlagCondition(overlayData, invert: true),
                 _ => throw new ArgumentOutOfRangeException()
             })
-                   .Where(overlayData => overlayData.Texture is not null && GFX.Gui.Has(overlayData.Texture)
-                   && overlayData.Layer == layer))
+                   .Where(overlayData => overlayData.Texture is not null 
+                       && (GFX.Gui.Has(overlayData.Texture) || GFX.Game.Has(overlayData.Texture))
+                       && overlayData.Layer == layer))
         {
             MTexture texture;
+            Atlas atlas = overlayData.UseGameplayAtlas ? GFX.Game : GFX.Gui;
             if (overlayData.Animated)
             {
                 string subtexturePath = SubtextureRegex().Replace(overlayData.Texture, string.Empty);
-                List<MTexture> textures = GFX.Gui.GetAtlasSubtextures(subtexturePath);
+                List<MTexture> textures = atlas.GetAtlasSubtextures(subtexturePath);
                 if (textures.Count > 1)
                 {
                     overlayData.CurrentFrame += overlayData.AnimationSpeed * Engine.DeltaTime;
@@ -612,7 +614,7 @@ public static partial class ChapterPanelCustomization
             }
             else
             {
-                texture = GFX.Gui[overlayData.Texture];
+                texture = atlas[overlayData.Texture];
             }
             
             Color color = Calc.HexToColor(overlayData.Color);
