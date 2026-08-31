@@ -617,6 +617,26 @@ public static partial class ChapterPanelCustomization
                 texture = atlas[overlayData.Texture];
             }
             
+            BlendState blendState = overlayData.BlendMode switch
+            {
+                HamburgerHelperMetadata.OverlayData.BlendStates.AlphaBlend => BlendState.AlphaBlend,
+                HamburgerHelperMetadata.OverlayData.BlendStates.Additive => BlendState.Additive,
+                HamburgerHelperMetadata.OverlayData.BlendStates.NonPremultiplied => BlendState.NonPremultiplied,
+                HamburgerHelperMetadata.OverlayData.BlendStates.Opaque => BlendState.Opaque,
+                _ => BlendState.AlphaBlend
+            };
+            
+            SamplerState sampleState = overlayData.SampleMode switch
+            {
+                HamburgerHelperMetadata.OverlayData.SamplerStates.LinearClamp => SamplerState.LinearClamp,
+                HamburgerHelperMetadata.OverlayData.SamplerStates.LinearWrap => SamplerState.LinearWrap,
+                HamburgerHelperMetadata.OverlayData.SamplerStates.PointClamp => SamplerState.PointClamp,
+                HamburgerHelperMetadata.OverlayData.SamplerStates.PointWrap => SamplerState.PointWrap,
+                HamburgerHelperMetadata.OverlayData.SamplerStates.AnisotropicClamp => SamplerState.AnisotropicClamp,
+                HamburgerHelperMetadata.OverlayData.SamplerStates.AnisotropicWrap => SamplerState.AnisotropicWrap,
+                _ => SamplerState.LinearClamp
+            };
+            
             Color color = Calc.HexToColor(overlayData.Color);
             bool renderShaderThisLayer = false;
             
@@ -630,16 +650,14 @@ public static partial class ChapterPanelCustomization
                 Matrix transformMatrix = HiresRenderer.DrawToBuffer ? Matrix.Identity : Engine.ScreenMatrix;
                 effect = ApplyParameters(effect, data, transformMatrix);
                 
-                SamplerState samplerState = overlayData.RemoveAntialiasing ? SamplerState.PointClamp : SamplerState.LinearClamp;
-                
-                Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState,
+                Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, blendState, sampleState,
                     DepthStencilState.Default, RasterizerState.CullNone, effect, transformMatrix);
             }
             
-            if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
+            if (!renderShaderThisLayer)
             {
                 HiresRenderer.EndRender();
-                HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
+                HiresRenderer.BeginRender(blendState, sampleState);
             }
             
             // brick of code so good it has me bricked up too
@@ -698,15 +716,15 @@ public static partial class ChapterPanelCustomization
                 break;
             }
 
-            if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
+            switch (renderShaderThisLayer)
             {
-                HiresRenderer.EndRender();
-                HiresRenderer.BeginRender();
-            }
-            
-            if (renderShaderThisLayer)
-            {
-                EndShaderLayerRender();
+                case true:
+                    EndShaderLayerRender();
+                    break;
+                case false:
+                    HiresRenderer.EndRender();
+                    HiresRenderer.BeginRender();
+                    break;
             }
             
             i++;

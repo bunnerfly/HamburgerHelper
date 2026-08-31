@@ -118,6 +118,24 @@ public class HamburgerHelperMetadata
             Multiply
         }
         
+        public enum BlendStates
+        {
+            AlphaBlend,
+            Additive,
+            NonPremultiplied,
+            Opaque
+        }
+        
+        public enum SamplerStates
+        {
+            LinearClamp,
+            LinearWrap,
+            PointClamp,
+            PointWrap,
+            AnisotropicClamp,
+            AnisotropicWrap
+        }
+        
         public Conditions Condition { get; set; } = Conditions.None;
         public string ConditionFlag { get; set; } = "";
         
@@ -161,9 +179,10 @@ public class HamburgerHelperMetadata
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
         
-        public bool RemoveAntialiasing { get; set; } = false;
-        public bool DrawCentered { get; set; } = false;
         public bool UseGameplayAtlas { get; set; } = false;
+        public BlendStates BlendMode { get; set; } = BlendStates.AlphaBlend;
+        public SamplerStates SampleMode { get; set; } = SamplerStates.LinearClamp;
+        public bool DrawCentered { get; set; } = false;
         
         public EffectDataLayer RenderEffect { get; set; }
     }
