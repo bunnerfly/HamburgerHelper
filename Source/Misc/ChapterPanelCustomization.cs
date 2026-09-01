@@ -1,9 +1,7 @@
 #pragma warning disable CA2208
 
 using System.Text.RegularExpressions;
-using Celeste.Mod.CollabUtils2;
 using Celeste.Mod.CollabUtils2.UI;
-using Celeste.Mod.HamburgerHelper.ModInterop.Imports;
 using Celeste.Mod.Helpers;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -174,7 +172,7 @@ public static partial class ChapterPanelCustomization
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
-        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.BelowCard);
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.GlobalOverlayData.Layers.BelowCard);
         cursor.EmitDelegate(DrawOverlays);
 
         cursor.Index = 0;
@@ -220,7 +218,7 @@ public static partial class ChapterPanelCustomization
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
-        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.Default);
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.GlobalOverlayData.Layers.Default);
         cursor.EmitDelegate(DrawOverlays);
         
         // ----- Option Text Recoloring -----
@@ -243,7 +241,7 @@ public static partial class ChapterPanelCustomization
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
-        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.BelowTitle);
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.GlobalOverlayData.Layers.BelowTitle);
         cursor.EmitDelegate(DrawOverlays);
         
         // ----- Title Base Shader Rendering -----
@@ -298,7 +296,7 @@ public static partial class ChapterPanelCustomization
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
-        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveTitle);
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.GlobalOverlayData.Layers.AboveTitle);
         cursor.EmitDelegate(DrawOverlays);
         
         // ----- Title Text & Chapter # Text Shader Rendering -----
@@ -357,7 +355,7 @@ public static partial class ChapterPanelCustomization
         
         cursor.EmitLdarg0();
         cursor.EmitLdloc2();
-        cursor.EmitLdcI4((int)HamburgerHelperMetadata.OverlayData.Layers.AboveText);
+        cursor.EmitLdcI4((int)HamburgerHelperMetadata.GlobalOverlayData.Layers.AboveText);
         cursor.EmitDelegate(DrawOverlays);
     }
     
@@ -574,25 +572,27 @@ public static partial class ChapterPanelCustomization
     # region Overlays & Recolors
     
     // Overlay rendering was made by aonkeeper4, added + edited with permission of course
-    private static void DrawOverlays(OuiChapterPanel panel, MTexture cardTop, HamburgerHelperMetadata.OverlayData.Layers layer)
+    private static void DrawOverlays(OuiChapterPanel panel, MTexture cardTop, HamburgerHelperMetadata.GlobalOverlayData.Layers layer)
     {
         if (!HamburgerHelperMetadata.TryGetMetadata(panel.Data, out HamburgerHelperMetadata metadata)
             || metadata.ChapterPanelCustomization is not { Overlays: { Count: > 0 } overlays })
             return;
         
         int i = 0;
+
+        overlays.InitializeOverlays(metadata);
         
         AreaModeStats stats = panel.RealStats.Modes[(int) panel.Area.Mode];
         foreach (HamburgerHelperMetadata.OverlayData overlayData
             in overlays.Where(overlayData => overlayData.Condition switch { 
-                HamburgerHelperMetadata.OverlayData.Conditions.None => true,
-                HamburgerHelperMetadata.OverlayData.Conditions.Clear => stats.Completed,
-                HamburgerHelperMetadata.OverlayData.Conditions.FullClear => stats.FullClear,
-                HamburgerHelperMetadata.OverlayData.Conditions.Golden => OverlayUtils.GoldenCollected(panel.Area, stats),
-                HamburgerHelperMetadata.OverlayData.Conditions.Silver => OverlayUtils.SilverCollected(panel.Area, stats),
-                HamburgerHelperMetadata.OverlayData.Conditions.Rainbow => OverlayUtils.RainbowCollected(panel.Area, stats),
-                HamburgerHelperMetadata.OverlayData.Conditions.Flag => OverlayUtils.CheckFlagCondition(overlayData, invert: false),
-                HamburgerHelperMetadata.OverlayData.Conditions.NotFlag => OverlayUtils.CheckFlagCondition(overlayData, invert: true),
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.None => true,
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.Clear => stats.Completed,
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.FullClear => stats.FullClear,
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.Golden => OverlayUtils.GoldenCollected(panel.Area, stats),
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.Silver => OverlayUtils.SilverCollected(panel.Area, stats),
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.Rainbow => OverlayUtils.RainbowCollected(panel.Area, stats),
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.Flag => OverlayUtils.CheckFlagCondition(overlayData, invert: false),
+                HamburgerHelperMetadata.GlobalOverlayData.Conditions.NotFlag => OverlayUtils.CheckFlagCondition(overlayData, invert: true),
                 _ => throw new ArgumentOutOfRangeException()
             })
                    .Where(overlayData => overlayData.Texture is not null 
@@ -600,14 +600,14 @@ public static partial class ChapterPanelCustomization
                        && overlayData.Layer == layer))
         {
             MTexture texture;
-            Atlas atlas = overlayData.UseGameplayAtlas ? GFX.Game : GFX.Gui;
-            if (overlayData.Animated)
+            Atlas atlas = overlayData.UseGameplayAtlas.GetValueOrDefault() ? GFX.Game : GFX.Gui;
+            if (overlayData.Animated.GetValueOrDefault())
             {
                 string subtexturePath = SubtextureRegex().Replace(overlayData.Texture, string.Empty);
                 List<MTexture> textures = atlas.GetAtlasSubtextures(subtexturePath);
                 if (textures.Count > 1)
                 {
-                    overlayData.CurrentFrame += overlayData.AnimationSpeed * Engine.DeltaTime;
+                    overlayData.CurrentFrame += overlayData.AnimationSpeed.GetValueOrDefault() * Engine.DeltaTime;
                     overlayData.CurrentFrame %= textures.Count;
                 }
                 texture = textures[(int)overlayData.CurrentFrame];
@@ -619,21 +619,21 @@ public static partial class ChapterPanelCustomization
             
             BlendState blendState = overlayData.BlendMode switch
             {
-                HamburgerHelperMetadata.OverlayData.BlendStates.AlphaBlend => BlendState.AlphaBlend,
-                HamburgerHelperMetadata.OverlayData.BlendStates.Additive => BlendState.Additive,
-                HamburgerHelperMetadata.OverlayData.BlendStates.NonPremultiplied => BlendState.NonPremultiplied,
-                HamburgerHelperMetadata.OverlayData.BlendStates.Opaque => BlendState.Opaque,
+                HamburgerHelperMetadata.GlobalOverlayData.BlendStates.AlphaBlend => BlendState.AlphaBlend,
+                HamburgerHelperMetadata.GlobalOverlayData.BlendStates.Additive => BlendState.Additive,
+                HamburgerHelperMetadata.GlobalOverlayData.BlendStates.NonPremultiplied => BlendState.NonPremultiplied,
+                HamburgerHelperMetadata.GlobalOverlayData.BlendStates.Opaque => BlendState.Opaque,
                 _ => BlendState.AlphaBlend
             };
             
             SamplerState sampleState = overlayData.SampleMode switch
             {
-                HamburgerHelperMetadata.OverlayData.SamplerStates.LinearClamp => SamplerState.LinearClamp,
-                HamburgerHelperMetadata.OverlayData.SamplerStates.LinearWrap => SamplerState.LinearWrap,
-                HamburgerHelperMetadata.OverlayData.SamplerStates.PointClamp => SamplerState.PointClamp,
-                HamburgerHelperMetadata.OverlayData.SamplerStates.PointWrap => SamplerState.PointWrap,
-                HamburgerHelperMetadata.OverlayData.SamplerStates.AnisotropicClamp => SamplerState.AnisotropicClamp,
-                HamburgerHelperMetadata.OverlayData.SamplerStates.AnisotropicWrap => SamplerState.AnisotropicWrap,
+                HamburgerHelperMetadata.GlobalOverlayData.SamplerStates.LinearClamp => SamplerState.LinearClamp,
+                HamburgerHelperMetadata.GlobalOverlayData.SamplerStates.LinearWrap => SamplerState.LinearWrap,
+                HamburgerHelperMetadata.GlobalOverlayData.SamplerStates.PointClamp => SamplerState.PointClamp,
+                HamburgerHelperMetadata.GlobalOverlayData.SamplerStates.PointWrap => SamplerState.PointWrap,
+                HamburgerHelperMetadata.GlobalOverlayData.SamplerStates.AnisotropicClamp => SamplerState.AnisotropicClamp,
+                HamburgerHelperMetadata.GlobalOverlayData.SamplerStates.AnisotropicWrap => SamplerState.AnisotropicWrap,
                 _ => SamplerState.LinearClamp
             };
             
@@ -663,24 +663,24 @@ public static partial class ChapterPanelCustomization
             // brick of code so good it has me bricked up too
             overlayData.ProcessSessionExpressions();
             
-            if (overlayData.DrawCentered)
+            if (overlayData.DrawCentered.GetValueOrDefault())
             {
                 float scaledHeight = texture.Height * overlayData.ScaleVector.Y;
 
                 Vector2 cardOffset;
                 switch (overlayData.Anchor)
                 {
-                    case HamburgerHelperMetadata.OverlayData.Anchors.None:
+                    case HamburgerHelperMetadata.GlobalOverlayData.Anchors.None:
                         cardOffset = new Vector2(scaledHeight, scaledHeight / 2f);
                         texture.DrawCentered(panel.Position + overlayData.PositionOffset + cardOffset, color,
                             overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
-                    case HamburgerHelperMetadata.OverlayData.Anchors.Card:
+                    case HamburgerHelperMetadata.GlobalOverlayData.Anchors.Card:
                         cardOffset = new Vector2(scaledHeight, cardTop.Height - 32f + panel.height - scaledHeight / 2f);
                         texture.DrawCentered(panel.Position + cardOffset + overlayData.PositionOffset,
                             color, overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
-                    case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
+                    case HamburgerHelperMetadata.GlobalOverlayData.Anchors.Stats:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -690,23 +690,23 @@ public static partial class ChapterPanelCustomization
             {
                 switch (overlayData.Anchor)
                 {
-                    case HamburgerHelperMetadata.OverlayData.Anchors.None:
+                    case HamburgerHelperMetadata.GlobalOverlayData.Anchors.None:
                         texture.Draw(panel.Position + overlayData.PositionOffset, Vector2.Zero, color,
                             overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
-                    case HamburgerHelperMetadata.OverlayData.Anchors.Card:
+                    case HamburgerHelperMetadata.GlobalOverlayData.Anchors.Card:
                         texture.GetSubtexture(0, texture.Height - (int) panel.height, texture.Width, (int) panel.height)
                             .Draw(panel.Position + Vector2.UnitY * (cardTop.Height - 32f) + overlayData.PositionOffset,
                                 Vector2.Zero, color, overlayData.ScaleVector, overlayData.RotationRadians);
                         break;
-                    case HamburgerHelperMetadata.OverlayData.Anchors.Stats:
+                    case HamburgerHelperMetadata.GlobalOverlayData.Anchors.Stats:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
             
-            if (overlayData.Anchor == HamburgerHelperMetadata.OverlayData.Anchors.Stats)
+            if (overlayData.Anchor == HamburgerHelperMetadata.GlobalOverlayData.Anchors.Stats)
             {
                 if (!panel.selectingMode)
                     break;
