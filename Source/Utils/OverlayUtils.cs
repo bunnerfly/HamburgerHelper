@@ -75,6 +75,7 @@ public static class OverlayUtils
             overlayData.OffsetYMode ??= globalOverlayData.OffsetYMode;
             overlayData.Animated ??= globalOverlayData.Animated;
             overlayData.AnimationSpeed ??= globalOverlayData.AnimationSpeed;
+            overlayData.AnimationOffset ??= globalOverlayData.AnimationOffset;
             overlayData.UseGameplayAtlas ??= globalOverlayData.UseGameplayAtlas;
             overlayData.BlendMode ??= globalOverlayData.BlendMode;
             overlayData.SampleMode ??= globalOverlayData.SampleMode;
