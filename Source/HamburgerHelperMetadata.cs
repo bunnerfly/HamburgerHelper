@@ -167,6 +167,7 @@ public class HamburgerHelperMetadata
         
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
+        public int AnimationOffset { get; set; } = 0;
         
         public bool UseGameplayAtlas { get; set; } = false;
         public BlendStates BlendMode { get; set; } = BlendStates.AlphaBlend;
@@ -222,6 +223,7 @@ public class HamburgerHelperMetadata
         public float CurrentFrame = 0;
         public bool? Animated { get; set; }
         public float? AnimationSpeed { get; set; }
+        public int? AnimationOffset { get; set; }
         
         public bool? UseGameplayAtlas { get; set; }
         public GlobalOverlayData.BlendStates? BlendMode { get; set; }

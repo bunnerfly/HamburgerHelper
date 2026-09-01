@@ -610,7 +610,7 @@ public static partial class ChapterPanelCustomization
                     overlayData.CurrentFrame += overlayData.AnimationSpeed.GetValueOrDefault() * Engine.DeltaTime;
                     overlayData.CurrentFrame %= textures.Count;
                 }
-                texture = textures[(int)overlayData.CurrentFrame];
+                texture = textures[((int)overlayData.CurrentFrame + overlayData.AnimationOffset.GetValueOrDefault()) % textures.Count];
             }
             else
             {
