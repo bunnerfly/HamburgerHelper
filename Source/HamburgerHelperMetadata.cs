@@ -81,7 +81,7 @@ public class HamburgerHelperMetadata
         public List<SamplerParameter> SamplerParameters = [];
     }
     
-    public class GlobalOverlayData
+    public class OverlayData
     {
         public enum Conditions
         {
@@ -136,6 +136,24 @@ public class HamburgerHelperMetadata
             AnisotropicWrap
         }
         
+        public static readonly Dictionary<BlendStates, BlendState> BlendConverter = new()
+        {
+            [BlendStates.AlphaBlend] = Microsoft.Xna.Framework.Graphics.BlendState.AlphaBlend,
+            [BlendStates.Additive] = Microsoft.Xna.Framework.Graphics.BlendState.Additive,
+            [BlendStates.NonPremultiplied] = Microsoft.Xna.Framework.Graphics.BlendState.NonPremultiplied,
+            [BlendStates.Opaque] = Microsoft.Xna.Framework.Graphics.BlendState.Opaque
+        };
+        
+        public static readonly Dictionary<SamplerStates, SamplerState> SamplerConverter = new()
+        {
+            [SamplerStates.LinearClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.LinearClamp,
+            [SamplerStates.LinearWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.LinearWrap,
+            [SamplerStates.PointClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.PointClamp,
+            [SamplerStates.PointWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.PointWrap,
+            [SamplerStates.AnisotropicClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.AnisotropicClamp,
+            [SamplerStates.AnisotropicWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.AnisotropicWrap
+        };
+        
         public Conditions Condition { get; set; } = Conditions.None;
         public string ConditionFlag { get; set; } = "";
         
@@ -146,10 +164,13 @@ public class HamburgerHelperMetadata
         public string Texture { get; set; }
 
         public float Rotation { get; set; } = 0;
+        public float FinalRotation = 0;
         public string RotationFunction { get; set; } = "";
         public ModifierModes RotationMode { get; set; } = ModifierModes.Set;
+        public float RotationRadians => MathHelper.ToRadians(FinalRotation);
         
         public float[] Scale { get; set; } = [1, 1];
+        public Vector2 FinalScale = Vector2.One;
         public string ScaleFunction { get; set; } = "";
         public string ScaleXFunction { get; set; } = "";
         public string ScaleYFunction { get; set; } = "";
@@ -157,7 +178,11 @@ public class HamburgerHelperMetadata
         public ModifierModes ScaleXMode { get; set; } = ModifierModes.Set;
         public ModifierModes ScaleYMode { get; set; } = ModifierModes.Set;
         
+        public Vector2 OrigScale => new Vector2(Scale[0], Scale[1]);
+        public Vector2 ScaleVector => new Vector2(FinalScale.X, FinalScale.Y);
+        
         public float[] Offset { get; set; } = [0, 0];
+        public Vector2 FinalOffset = Vector2.Zero;
         public string OffsetFunction { get; set; } = "";
         public string OffsetXFunction { get; set; } = "";
         public string OffsetYFunction { get; set; } = "";
@@ -165,70 +190,20 @@ public class HamburgerHelperMetadata
         public ModifierModes OffsetXMode { get; set; } = ModifierModes.Set;
         public ModifierModes OffsetYMode { get; set; } = ModifierModes.Set;
         
+        public Vector2 OrigOffset => new Vector2(Offset[0], Offset[1]);
+        public Vector2 PositionOffset => new Vector2(FinalOffset.X, FinalOffset.Y);
+        
+        public float CurrentFrame = 0;
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
         public int AnimationOffset { get; set; } = 0;
         
         public bool UseGameplayAtlas { get; set; } = false;
-        public BlendStates BlendMode { get; set; } = BlendStates.AlphaBlend;
-        public SamplerStates SampleMode { get; set; } = SamplerStates.LinearClamp;
+        public BlendStates BlendState { get; set; } = BlendStates.AlphaBlend;
+        public BlendState RealBlendState => BlendConverter[BlendState];
+        public SamplerStates SamplerState { get; set; } = SamplerStates.LinearClamp;
+        public SamplerState RealSamplerState => SamplerConverter[SamplerState];
         public bool DrawCentered { get; set; } = false;
-        
-        public EffectDataLayer RenderEffect { get; set; }
-    }
-    
-    public class OverlayData
-    {
-        public bool Initialized = false;
-        
-        public GlobalOverlayData.Conditions? Condition { get; set; }
-        public string ConditionFlag { get; set; }
-        
-        public GlobalOverlayData.Anchors? Anchor { get; set; }
-        public GlobalOverlayData.Layers? Layer { get; set; }
-        
-        public string Color { get; set; }
-        public string Texture { get; set; }
-
-        public float? Rotation { get; set; }
-        public float FinalRotation = 0;
-        public string RotationFunction { get; set; }
-        public GlobalOverlayData.ModifierModes? RotationMode { get; set; }
-        public float RotationRadians => MathHelper.ToRadians(FinalRotation);
-        
-        public float[] Scale { get; set; }
-        public Vector2 FinalScale = Vector2.One;
-        public string ScaleFunction { get; set; }
-        public string ScaleXFunction { get; set; }
-        public string ScaleYFunction { get; set; }
-        public GlobalOverlayData.ModifierModes? ScaleMode { get; set; }
-        public GlobalOverlayData.ModifierModes? ScaleXMode { get; set; }
-        public GlobalOverlayData.ModifierModes? ScaleYMode { get; set; }
-        
-        public Vector2 OrigScale => new Vector2(Scale[0], Scale[1]);
-        public Vector2 ScaleVector => new Vector2(FinalScale.X, FinalScale.Y);
-        
-        public float[] Offset { get; set; }
-        public Vector2 FinalOffset = Vector2.Zero;
-        public string OffsetFunction { get; set; }
-        public string OffsetXFunction { get; set; }
-        public string OffsetYFunction { get; set; }
-        public GlobalOverlayData.ModifierModes? OffsetMode { get; set; }
-        public GlobalOverlayData.ModifierModes? OffsetXMode { get; set; }
-        public GlobalOverlayData.ModifierModes? OffsetYMode { get; set; }
-        
-        public Vector2 OrigOffset => new Vector2(Offset[0], Offset[1]);
-        public Vector2 PositionOffset => new Vector2(FinalOffset.X, FinalOffset.Y);
-        
-        public float CurrentFrame = 0;
-        public bool? Animated { get; set; }
-        public float? AnimationSpeed { get; set; }
-        public int? AnimationOffset { get; set; }
-        
-        public bool? UseGameplayAtlas { get; set; }
-        public GlobalOverlayData.BlendStates? BlendMode { get; set; }
-        public GlobalOverlayData.SamplerStates? SampleMode { get; set; }
-        public bool? DrawCentered { get; set; }
         
         public EffectDataLayer RenderEffect { get; set; }
     }
@@ -275,7 +250,6 @@ public class HamburgerHelperMetadata
     public class ChapterPanelCustomizationSettingsData
     {
         public CustomColorData CustomColors { get; set; }
-        public GlobalOverlayData OverlaysGlobal { get; set; }
         public List<OverlayData> Overlays { get; set; }
         public CustomIconData CustomIcon { get; set; }
         public string CustomPolaroidPath { get; set; } = "polaroid";
