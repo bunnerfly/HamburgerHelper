@@ -832,6 +832,8 @@ public static partial class ChapterPanelCustomization
             if (TextMaskTarget == null) return;
             
             gd.SetRenderTarget(TextMaskTarget);
+            gd.Viewport = Engine.Viewport;
+            
             gd.Clear(Color.Transparent);
         }
         
@@ -880,6 +882,7 @@ public static partial class ChapterPanelCustomization
                 gd.SetRenderTarget(Celeste.HudTarget);
             else
                 gd.SetRenderTargets(PreviousTarget);
+            gd.Viewport = Engine.Viewport;
             
             Matrix transformMatrix = HiresRenderer.DrawToBuffer ? Matrix.Identity : Engine.ScreenMatrix;
             
@@ -1026,7 +1029,7 @@ public static partial class ChapterPanelCustomization
     # endregion
     
     # region Render Targets
-
+    
     private static RenderTargetBinding[] PreviousTarget;
     private static VirtualRenderTarget TextMaskTarget;
     
@@ -1039,48 +1042,15 @@ public static partial class ChapterPanelCustomization
     [OnLoadContent]
     internal static void LoadContent(bool firstLoad)
     {
-        GetWindowScale(out float scaleX, out float scaleY);
-        
-        scaleX = Math.Max(scaleX, 1);
-        scaleY = Math.Max(scaleY, 1);
-        
-        float baseWidth = (320 * scaleX);
-        float baseHeight = (180 * scaleY);
-        
-        int width = (int)(baseWidth * Math.Max(Settings.Instance.WindowScale, 6));
-        int height = (int)(baseHeight * Math.Max(Settings.Instance.WindowScale, 6));
-        
-        TextMaskTarget = VirtualContent.CreateRenderTarget("shader-mask-target", width, height);
+        TextMaskTarget = VirtualContent.CreateRenderTarget("shader-mask-target", Celeste.HudTarget.Width, Celeste.HudTarget.Height);
     }
     
     private static void ResizeTarget()
     {
-        GetWindowScale(out float scaleX, out float scaleY);
-        
-        scaleX = Math.Max(scaleX, 1);
-        scaleY = Math.Max(scaleY, 1);
-        
-        float baseWidth = (320 * scaleX);
-        float baseHeight = (180 * scaleY);
-        
-        int width = (int)(baseWidth * Math.Max(Settings.Instance.WindowScale, 6));
-        int height = (int)(baseHeight * Math.Max(Settings.Instance.WindowScale, 6));
-
-        TextMaskTarget.Width = width;
-        TextMaskTarget.Height = height;
+        TextMaskTarget.Width = Celeste.HudTarget.Width;
+        TextMaskTarget.Height = Celeste.HudTarget.Height;
         TextMaskTarget.Reload();
     }
     
-    private static void GetWindowScale(out float scaleX, out float scaleY)
-    {
-        Viewport viewport = Engine.Graphics.GraphicsDevice.Viewport;
-    
-        int referenceX = 320 * Math.Max(Settings.Instance.WindowScale, 6);
-        int referenceY = 180 * Math.Max(Settings.Instance.WindowScale, 6);
-        
-        scaleX = (float)viewport.Width / referenceX;
-        scaleY = (float)viewport.Height / referenceY;
-    }
-
     #endregion
 }
