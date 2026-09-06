@@ -1,5 +1,5 @@
 - Name: HamburgerHelper
-  Version: 0.1.21
+  Version: 0.1.22
   DLL: bin/HamburgerHelper.dll
   Dependencies:
     - Name: EverestCore
