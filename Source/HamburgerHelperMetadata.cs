@@ -2,6 +2,7 @@
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnassignedField.Global
+using XNA = Microsoft.Xna.Framework.Graphics;
 
 namespace Celeste.Mod.HamburgerHelper;
 
@@ -138,20 +139,20 @@ public class HamburgerHelperMetadata
         
         public static readonly Dictionary<BlendStates, BlendState> BlendConverter = new()
         {
-            [BlendStates.AlphaBlend] = Microsoft.Xna.Framework.Graphics.BlendState.AlphaBlend,
-            [BlendStates.Additive] = Microsoft.Xna.Framework.Graphics.BlendState.Additive,
-            [BlendStates.NonPremultiplied] = Microsoft.Xna.Framework.Graphics.BlendState.NonPremultiplied,
-            [BlendStates.Opaque] = Microsoft.Xna.Framework.Graphics.BlendState.Opaque
+            [BlendStates.AlphaBlend] = XNA.BlendState.AlphaBlend,
+            [BlendStates.Additive] = XNA.BlendState.Additive,
+            [BlendStates.NonPremultiplied] = XNA.BlendState.NonPremultiplied,
+            [BlendStates.Opaque] = XNA.BlendState.Opaque
         };
         
         public static readonly Dictionary<SamplerStates, SamplerState> SamplerConverter = new()
         {
-            [SamplerStates.LinearClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.LinearClamp,
-            [SamplerStates.LinearWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.LinearWrap,
-            [SamplerStates.PointClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.PointClamp,
-            [SamplerStates.PointWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.PointWrap,
-            [SamplerStates.AnisotropicClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.AnisotropicClamp,
-            [SamplerStates.AnisotropicWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.AnisotropicWrap
+            [SamplerStates.LinearClamp] = XNA.SamplerState.LinearClamp,
+            [SamplerStates.LinearWrap] = XNA.SamplerState.LinearWrap,
+            [SamplerStates.PointClamp] = XNA.SamplerState.PointClamp,
+            [SamplerStates.PointWrap] = XNA.SamplerState.PointWrap,
+            [SamplerStates.AnisotropicClamp] = XNA.SamplerState.AnisotropicClamp,
+            [SamplerStates.AnisotropicWrap] = XNA.SamplerState.AnisotropicWrap
         };
         
         public Conditions Condition { get; set; } = Conditions.None;
