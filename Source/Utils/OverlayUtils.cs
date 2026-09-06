@@ -41,12 +41,17 @@ public static class OverlayUtils
         
         return new Vector2(x, y);
     }
-    
+
     public static void ProcessSessionExpressions(this HamburgerHelperMetadata.OverlayData overlayData)
     {
         if (FrostHelperImports.IsImported)
         {
-            overlayData.FinalRotation = overlayData.FinalRotation.ModifyValue(overlayData.RotationMode, overlayData.RotationFunction, overlayData.Rotation);
+            overlayData.FinalRotation = overlayData.FinalRotation.ModifyValue
+            (
+                overlayData.RotationMode,
+                overlayData.RotationFunction,
+                overlayData.Rotation
+            );
             
             bool hasScaleFunction = !string.IsNullOrWhiteSpace(overlayData.ScaleFunction);
             overlayData.FinalScale = overlayData.FinalScale.ModifyValue

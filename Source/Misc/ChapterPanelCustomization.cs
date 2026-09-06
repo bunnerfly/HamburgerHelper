@@ -1,9 +1,7 @@
 #pragma warning disable CA2208
 
 using System.Text.RegularExpressions;
-using Celeste.Mod.CollabUtils2;
 using Celeste.Mod.CollabUtils2.UI;
-using Celeste.Mod.HamburgerHelper.ModInterop.Imports;
 using Celeste.Mod.Helpers;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -610,7 +608,7 @@ public static partial class ChapterPanelCustomization
                     overlayData.CurrentFrame += overlayData.AnimationSpeed * Engine.DeltaTime;
                     overlayData.CurrentFrame %= textures.Count;
                 }
-                texture = textures[(int)overlayData.CurrentFrame];
+                texture = textures[((int)overlayData.CurrentFrame + overlayData.AnimationOffset) % textures.Count];
             }
             else
             {
@@ -630,16 +628,14 @@ public static partial class ChapterPanelCustomization
                 Matrix transformMatrix = HiresRenderer.DrawToBuffer ? Matrix.Identity : Engine.ScreenMatrix;
                 effect = ApplyParameters(effect, data, transformMatrix);
                 
-                SamplerState samplerState = overlayData.RemoveAntialiasing ? SamplerState.PointClamp : SamplerState.LinearClamp;
-                
-                Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState,
+                Draw.SpriteBatch.Begin(SpriteSortMode.Deferred, overlayData.RealBlendState, overlayData.RealSamplerState,
                     DepthStencilState.Default, RasterizerState.CullNone, effect, transformMatrix);
             }
             
-            if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
+            if (!renderShaderThisLayer)
             {
                 HiresRenderer.EndRender();
-                HiresRenderer.BeginRender(BlendState.AlphaBlend, SamplerState.PointClamp);
+                HiresRenderer.BeginRender(overlayData.RealBlendState, overlayData.RealSamplerState);
             }
             
             // brick of code so good it has me bricked up too
@@ -698,15 +694,15 @@ public static partial class ChapterPanelCustomization
                 break;
             }
 
-            if (overlayData.RemoveAntialiasing && !renderShaderThisLayer)
+            switch (renderShaderThisLayer)
             {
-                HiresRenderer.EndRender();
-                HiresRenderer.BeginRender();
-            }
-            
-            if (renderShaderThisLayer)
-            {
-                EndShaderLayerRender();
+                case true:
+                    EndShaderLayerRender();
+                    break;
+                case false:
+                    HiresRenderer.EndRender();
+                    HiresRenderer.BeginRender();
+                    break;
             }
             
             i++;

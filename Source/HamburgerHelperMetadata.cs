@@ -118,6 +118,42 @@ public class HamburgerHelperMetadata
             Multiply
         }
         
+        public enum BlendStates
+        {
+            AlphaBlend,
+            Additive,
+            NonPremultiplied,
+            Opaque
+        }
+        
+        public enum SamplerStates
+        {
+            LinearClamp,
+            LinearWrap,
+            PointClamp,
+            PointWrap,
+            AnisotropicClamp,
+            AnisotropicWrap
+        }
+        
+        public static readonly Dictionary<BlendStates, BlendState> BlendConverter = new()
+        {
+            [BlendStates.AlphaBlend] = Microsoft.Xna.Framework.Graphics.BlendState.AlphaBlend,
+            [BlendStates.Additive] = Microsoft.Xna.Framework.Graphics.BlendState.Additive,
+            [BlendStates.NonPremultiplied] = Microsoft.Xna.Framework.Graphics.BlendState.NonPremultiplied,
+            [BlendStates.Opaque] = Microsoft.Xna.Framework.Graphics.BlendState.Opaque
+        };
+        
+        public static readonly Dictionary<SamplerStates, SamplerState> SamplerConverter = new()
+        {
+            [SamplerStates.LinearClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.LinearClamp,
+            [SamplerStates.LinearWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.LinearWrap,
+            [SamplerStates.PointClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.PointClamp,
+            [SamplerStates.PointWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.PointWrap,
+            [SamplerStates.AnisotropicClamp] = Microsoft.Xna.Framework.Graphics.SamplerState.AnisotropicClamp,
+            [SamplerStates.AnisotropicWrap] = Microsoft.Xna.Framework.Graphics.SamplerState.AnisotropicWrap
+        };
+        
         public Conditions Condition { get; set; } = Conditions.None;
         public string ConditionFlag { get; set; } = "";
         
@@ -160,10 +196,14 @@ public class HamburgerHelperMetadata
         public float CurrentFrame = 0;
         public bool Animated { get; set; } = false;
         public float AnimationSpeed { get; set; } = 12;
+        public int AnimationOffset { get; set; } = 0;
         
-        public bool RemoveAntialiasing { get; set; } = false;
-        public bool DrawCentered { get; set; } = false;
         public bool UseGameplayAtlas { get; set; } = false;
+        public BlendStates BlendState { get; set; } = BlendStates.AlphaBlend;
+        public BlendState RealBlendState => BlendConverter[BlendState];
+        public SamplerStates SamplerState { get; set; } = SamplerStates.LinearClamp;
+        public SamplerState RealSamplerState => SamplerConverter[SamplerState];
+        public bool DrawCentered { get; set; } = false;
         
         public EffectDataLayer RenderEffect { get; set; }
     }
